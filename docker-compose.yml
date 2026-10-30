@@ -1,0 +1,61 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: synapse-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: synapse_db
+    volumes:
+      - synapse_mongo_data:/data/db
+    networks:
+      - synapse-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: synapse-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongodb:27017/synapse_db
+      JWT_SECRET: synapse_dev_jwt_secret_key_2026
+      JWT_EXPIRES_IN: 7d
+      CLIENT_URL: http://localhost:5173
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - synapse-network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: synapse-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - synapse-network
+
+volumes:
+  synapse_mongo_data:
+    driver: local
+
+networks:
+  synapse-network:
+    driver: bridge
