@@ -7,15 +7,62 @@ export default {
   theme: {
     extend: {
       colors: {
-        synapse: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
-          900: '#134e4a',
-        }
-      }
+        maroon: {
+          950: '#1e0508',
+          900: '#380a11',
+          850: '#4d0c16',
+          800: '#64101e',
+          700: '#800000', // Heritage Maroon
+          600: '#a33b26', // Crimson accent
+          500: '#be4933',
+          400: '#da664e',
+          300: '#eb8d78',
+        },
+        gold: {
+          950: '#1a1304',
+          900: '#332408',
+          800: '#5c410e',
+          700: '#805d15',
+          600: '#a4773a', // Regal Gold
+          500: '#c59238',
+          400: '#d49b25', // Radiant Gold
+          300: '#e7b958',
+          200: '#f3d48d',
+          100: '#faecc8',
+        },
+        zinc: {
+          850: '#1f1f23',
+          925: '#111115',
+          950: '#09090c',
+          975: '#040406',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
+      boxShadow: {
+        'glow-gold': '0 0 25px -5px rgba(212, 155, 37, 0.4)',
+        'glow-gold-lg': '0 0 40px -5px rgba(212, 155, 37, 0.6)',
+        'glow-maroon': '0 0 25px -5px rgba(163, 59, 38, 0.45)',
+        'glow-maroon-lg': '0 0 45px -5px rgba(128, 0, 0, 0.65)',
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+      },
+      animation: {
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'scan': 'scan 3s linear infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+        scan: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(1000%)' },
+        },
+      },
     },
   },
   plugins: [],
