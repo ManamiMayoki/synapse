@@ -62,37 +62,35 @@ export default function EcBenchMesh({
         ))
       )}
 
-      {/* Bench Floating Hologram Label */}
-      <Html position={[0, 1.7, 0]} center distanceFactor={16} zIndexRange={[70, 0]}>
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelectBench(table);
-          }}
-          className={`cursor-pointer transition-all duration-200 select-none flex flex-col items-center ${
-            hovered ? 'scale-110 z-30' : 'scale-90 opacity-80'
-          }`}
-        >
-          <div className="px-2.5 py-0.8 rounded-full border border-gold-500/50 bg-zinc-950/95 text-gold-300 font-mono text-[10px] font-bold shadow-lg flex items-center space-x-1.5 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold-400" />
-            <span>{table.tableId || `Table-${table.row}${table.col}`}</span>
-            {hasPc && (
-              <span className="px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 text-[8px] font-extrabold uppercase">
-                PC Online
-              </span>
-            )}
-          </div>
-          {hovered && (
-            <div className="mt-1 px-2 py-1 rounded-lg bg-zinc-950/95 border border-gold-500/30 text-[9px] text-slate-300 text-center shadow-xl backdrop-blur-md">
+      {/* Bench Floating Hologram Label - ONLY on hover or selection to keep normal mode pristine */}
+      {(hovered || isSelected) && (
+        <Html position={[0, 1.7, 0]} center zIndexRange={[70, 0]}>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectBench(table);
+            }}
+            className="cursor-pointer select-none flex flex-col items-center animate-in fade-in zoom-in-95 duration-150"
+          >
+            <div className="px-3 py-1.5 rounded-xl border border-gold-500/60 bg-zinc-950/98 text-gold-300 font-mono text-[10px] font-bold shadow-2xl flex items-center space-x-1.5 backdrop-blur-xl">
+              <span className="w-2 h-2 rounded-full bg-gold-400" />
+              <span>{table.tableId || `Table-${table.row}${table.col}`}</span>
+              {hasPc && (
+                <span className="px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 text-[8px] font-extrabold uppercase">
+                  PC Online
+                </span>
+              )}
+            </div>
+            <div className="mt-1 px-2.5 py-1 rounded-lg bg-zinc-950/98 border border-gold-500/30 text-[9px] text-slate-300 text-center shadow-xl backdrop-blur-md">
               <p className="font-bold text-white">{table.label}</p>
               <p className="text-gold-300/90 font-mono">
                 {table.equipment?.breadboards || 4} Breadboards • {table.equipment?.voltageMeters || 2} Meters
               </p>
               <p className="text-slate-400 text-[8px] mt-0.5">Click to configure bench gear</p>
             </div>
-          )}
-        </div>
-      </Html>
+          </div>
+        </Html>
+      )}
 
       {/* Equipment Shelf Layer */}
       <mesh position={[0, 1.05, -0.42]}>

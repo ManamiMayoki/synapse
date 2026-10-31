@@ -16,11 +16,8 @@ import { useLabData } from '../../context/LabDataContext';
 import { 
   Camera, 
   RotateCcw, 
-  Layers, 
-  ArrowUp, 
-  ArrowDown, 
-  Maximize2, 
-  Sliders, 
+  Plus, 
+  Minus,
   Sparkles,
   Info
 } from 'lucide-react';
@@ -35,12 +32,12 @@ function CameraController({ targetPosition, targetLookAt, controlsRef }) {
     gsap.killTweensOf(camera.position);
     gsap.killTweensOf(controlsRef.current.target);
 
-    // Animate camera position
+    // Animate camera position smoothly
     gsap.to(camera.position, {
       x: targetPosition[0],
       y: targetPosition[1],
       z: targetPosition[2],
-      duration: 1.2,
+      duration: 1.1,
       ease: 'power2.inOut',
     });
 
@@ -50,7 +47,7 @@ function CameraController({ targetPosition, targetLookAt, controlsRef }) {
         x: targetLookAt[0],
         y: targetLookAt[1],
         z: targetLookAt[2],
-        duration: 1.2,
+        duration: 1.1,
         ease: 'power2.inOut',
         onUpdate: () => controlsRef.current.update(),
       });
@@ -82,38 +79,38 @@ function Scene({
       return workstations;
     }
 
-    const spacingX = 4.2;
-    const spacingZ = 3.6;
+    const spacingX = 5.2;
+    const spacingZ = 4.0;
 
     return workstations.map((ws) => {
       const r = ws.slotRow || 1;
       const c = ws.slotCol || 1;
       const p = ws.pcIndex || 1;
 
-      // Central aisle offset between Column 2 and Column 3
-      const aisleOffsetX = c <= 2 ? -1.0 : 1.0;
+      // Central walkway aisle separating Column 2 and Column 3
+      const aisleOffsetX = c <= 2 ? -1.3 : 1.3;
       const podCenterX = (c - 2.5) * spacingX + aisleOffsetX;
       const podCenterZ = (r - 4.5) * spacingZ;
 
-      let pcOffsetX = -0.72;
-      let pcOffsetZ = -0.52;
+      let pcOffsetX = -1.05;
+      let pcOffsetZ = -0.58;
       let rotY = 0;
 
       if (p === 1) {
-        pcOffsetX = -0.72;
-        pcOffsetZ = -0.52;
+        pcOffsetX = -1.05;
+        pcOffsetZ = -0.58;
         rotY = 0;
       } else if (p === 2) {
-        pcOffsetX = 0.72;
-        pcOffsetZ = -0.52;
+        pcOffsetX = 1.05;
+        pcOffsetZ = -0.58;
         rotY = 0;
       } else if (p === 3) {
-        pcOffsetX = -0.72;
-        pcOffsetZ = 0.52;
+        pcOffsetX = -1.05;
+        pcOffsetZ = 0.58;
         rotY = Math.PI;
       } else {
-        pcOffsetX = 0.72;
-        pcOffsetZ = 0.52;
+        pcOffsetX = 1.05;
+        pcOffsetZ = 0.58;
         rotY = Math.PI;
       }
 
@@ -153,18 +150,25 @@ function Scene({
 
       <OrbitControls
         ref={controlsRef}
-        enableDamping
-        dampingFactor={0.06}
+        enableZoom={true}
+        zoomSpeed={1.5}
+        minDistance={2}
+        maxDistance={55}
+        enablePan={true}
+        panSpeed={1.4}
+        enableRotate={true}
+        rotateSpeed={0.85}
         maxPolarAngle={Math.PI / 2.05} // Prevent camera going under the floor
-        minDistance={3}
-        maxDistance={45}
+        minPolarAngle={0.05}
+        enableDamping={true}
+        dampingFactor={0.07}
       />
 
       {/* Lighting Rig */}
-      <ambientLight intensity={0.9} />
+      <ambientLight intensity={1.0} />
       <directionalLight
-        position={[12, 22, 14]}
-        intensity={1.2}
+        position={[14, 24, 16]}
+        intensity={1.4}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -173,17 +177,17 @@ function Scene({
 
       {/* Heritage Maroon and Regal Gold Spotlights */}
       <spotLight
-        position={[-14, 12, -12]}
-        intensity={2.2}
+        position={[-16, 14, -14]}
+        intensity={2.6}
         color="#800000"
-        angle={0.65}
+        angle={0.7}
         penumbra={0.8}
       />
       <spotLight
-        position={[14, 12, 12]}
-        intensity={2.2}
+        position={[16, 14, 14]}
+        intensity={2.6}
         color="#d49b25"
-        angle={0.65}
+        angle={0.7}
         penumbra={0.8}
       />
 
@@ -194,61 +198,61 @@ function Scene({
         receiveShadow
         onClick={() => onSelectStation(null)}
       >
-        <planeGeometry args={[isEcLab ? 26 : 28, isEcLab ? 32 : 38]} />
+        <planeGeometry args={[isEcLab ? 28 : 32, isEcLab ? 34 : 42]} />
         <meshStandardMaterial
-          color="#07070a"
-          metalness={0.8}
-          roughness={0.25}
+          color="#060609"
+          metalness={0.85}
+          roughness={0.22}
         />
       </mesh>
 
       {/* Floor Grid Lines */}
       <gridHelper
-        args={[isEcLab ? 26 : 28, isEcLab ? 26 : 28, '#a4773a', '#1a1a24']}
+        args={[isEcLab ? 28 : 32, isEcLab ? 28 : 32, '#a4773a', '#171722']}
         position={[0, 0.001, 0]}
       />
 
       {/* Ceiling Neon Light Fixture Beams */}
-      {[-12, -6, 0, 6, 12].map((z, idx) => (
-        <group key={idx} position={[0, 5.5, z]}>
+      {[-14, -7, 0, 7, 14].map((z, idx) => (
+        <group key={idx} position={[0, 6.2, z]}>
           <mesh>
-            <boxGeometry args={[isEcLab ? 22 : 24, 0.06, 0.08]} />
+            <boxGeometry args={[isEcLab ? 24 : 28, 0.08, 0.1]} />
             <meshStandardMaterial
               color="#ffffff"
-              emissive="#e2e8f0"
-              emissiveIntensity={1.8}
+              emissive="#f1f5f9"
+              emissiveIntensity={2.0}
             />
           </mesh>
         </group>
       ))}
 
       {/* North Wall: 4K Smart Projection Screen & Instructor Podium */}
-      <group position={[0, 2.5, isEcLab ? -15 : -18]}>
+      <group position={[0, 2.8, isEcLab ? -16 : -20]}>
         {/* Wall Partition */}
         <mesh receiveShadow>
-          <boxGeometry args={[isEcLab ? 24 : 26, 5, 0.1]} />
+          <boxGeometry args={[isEcLab ? 26 : 30, 5.6, 0.12]} />
           <meshStandardMaterial
-            color="#0b0b12"
+            color="#0b0b14"
             transparent
-            opacity={0.6}
-            metalness={0.8}
+            opacity={0.7}
+            metalness={0.85}
             roughness={0.2}
           />
         </mesh>
         {/* 4K Smart Projection Screen */}
-        <mesh position={[0, 0.4, 0.06]}>
-          <planeGeometry args={[10, 3.2]} />
+        <mesh position={[0, 0.5, 0.08]}>
+          <planeGeometry args={[12, 3.6]} />
           <meshStandardMaterial
             color="#000000"
             emissive={activeRoom?.accentColor || '#d49b25'}
-            emissiveIntensity={0.4}
+            emissiveIntensity={0.5}
           />
         </mesh>
       </group>
 
       {/* Server Racks in Corner */}
-      <ServerRackMesh position={[-11, 0, isEcLab ? -12 : -15]} />
-      <ServerRackMesh position={[-9.6, 0, isEcLab ? -12 : -15]} />
+      <ServerRackMesh position={[-12.5, 0, isEcLab ? -13 : -17]} />
+      <ServerRackMesh position={[-11, 0, isEcLab ? -13 : -17]} />
 
       {/* ROOM WORKSTATIONS / BENCHES */}
       {isEcLab ? (
@@ -285,10 +289,10 @@ function Scene({
 
       <ContactShadows
         position={[0, 0.01, 0]}
-        opacity={0.65}
-        scale={36}
-        blur={1.6}
-        far={7}
+        opacity={0.7}
+        scale={40}
+        blur={1.8}
+        far={8}
       />
     </>
   );
@@ -328,12 +332,12 @@ export default function LabCanvas() {
 
   const controlsRef = useRef();
 
-  // Camera presets
+  // Closer, cinematic camera presets that make PCs prominent and filling the view
   const presets = useMemo(() => ({
-    isometric: { position: [0, 22, 25], lookAt: [0, 0, 0] },
-    front: { position: [0, 11, -7], lookAt: [0, 0, -5] },
-    back: { position: [0, 11, 11], lookAt: [0, 0, 7] },
-    topdown: { position: [0, 32, 0.1], lookAt: [0, 0, 0] },
+    isometric: { position: [0, 14, 18], lookAt: [0, 0, 0] },
+    front: { position: [0, 9, -3], lookAt: [0, 0, -5] },
+    back: { position: [0, 9, 11], lookAt: [0, 0, 7] },
+    topdown: { position: [0, 24, 0.1], lookAt: [0, 0, 0] },
   }), []);
 
   const [cameraTarget, setCameraTarget] = useState(presets.isometric);
@@ -342,6 +346,46 @@ export default function LabCanvas() {
   useEffect(() => {
     setCameraTarget(presets.isometric);
   }, [activeRoomId, presets]);
+
+  // On-screen Zoom In handler (smoother and reliable on all mice & trackpads)
+  const handleZoomIn = () => {
+    if (!controlsRef.current) return;
+    const camera = controlsRef.current.object;
+    const target = controlsRef.current.target;
+    const dir = new THREE.Vector3().subVectors(camera.position, target).normalize();
+    const currentDist = camera.position.distanceTo(target);
+    const newDist = Math.max(3, currentDist * 0.72); // zoom in 28%
+    const newPos = target.clone().add(dir.multiplyScalar(newDist));
+
+    gsap.to(camera.position, {
+      x: newPos.x,
+      y: newPos.y,
+      z: newPos.z,
+      duration: 0.45,
+      ease: 'power2.out',
+      onUpdate: () => controlsRef.current?.update(),
+    });
+  };
+
+  // On-screen Zoom Out handler
+  const handleZoomOut = () => {
+    if (!controlsRef.current) return;
+    const camera = controlsRef.current.object;
+    const target = controlsRef.current.target;
+    const dir = new THREE.Vector3().subVectors(camera.position, target).normalize();
+    const currentDist = camera.position.distanceTo(target);
+    const newDist = Math.min(50, currentDist * 1.35); // zoom out 35%
+    const newPos = target.clone().add(dir.multiplyScalar(newDist));
+
+    gsap.to(camera.position, {
+      x: newPos.x,
+      y: newPos.y,
+      z: newPos.z,
+      duration: 0.45,
+      ease: 'power2.out',
+      onUpdate: () => controlsRef.current?.update(),
+    });
+  };
 
   const handleOpenClaimModal = (pcId) => {
     setClaimDefaultPcId(pcId || '');
@@ -358,8 +402,8 @@ export default function LabCanvas() {
     // Zoom camera towards clicked workstation
     if (station.position) {
       setCameraTarget({
-        position: [station.position[0], station.position[1] + 2.8, station.position[2] + 3.8],
-        lookAt: [station.position[0], station.position[1] + 0.8, station.position[2]],
+        position: [station.position[0], station.position[1] + 3.0, station.position[2] + 4.0],
+        lookAt: [station.position[0], station.position[1] + 0.9, station.position[2]],
       });
     }
   };
@@ -419,7 +463,7 @@ export default function LabCanvas() {
             
             <Canvas
               shadows
-              camera={{ position: [0, 22, 25], fov: 45 }}
+              camera={{ position: [0, 14, 18], fov: 44 }}
               gl={{ antialias: true, alpha: false }}
             >
               <Suspense fallback={null}>
@@ -439,52 +483,72 @@ export default function LabCanvas() {
               </Suspense>
             </Canvas>
 
-            {/* Camera Preset Quick Controls (Floating Bottom Right) */}
-            <div className="absolute bottom-5 right-5 z-20 flex flex-wrap items-center gap-2 bg-zinc-950/90 backdrop-blur-xl p-1.5 rounded-2xl border border-gold-500/30 shadow-2xl">
-              <div className="px-2 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-gold-400 flex items-center space-x-1 hidden sm:flex">
-                <Camera className="w-3.5 h-3.5" />
-                <span>Angle:</span>
+            {/* Interactive Zoom HUD & Camera Presets (Floating Bottom Right) */}
+            <div className="absolute bottom-5 right-5 z-20 flex flex-wrap items-center gap-2 bg-zinc-950/95 backdrop-blur-xl p-2 rounded-2xl border border-gold-500/40 shadow-2xl">
+              
+              {/* Quick Zoom Buttons (+ / -) */}
+              <div className="flex items-center space-x-1 border-r border-white/10 pr-2">
+                <button
+                  type="button"
+                  onClick={handleZoomIn}
+                  className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-gold-500/20 text-gold-300 hover:text-white border border-white/5 flex items-center justify-center font-bold text-base transition-colors"
+                  title="Zoom In (+)"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleZoomOut}
+                  className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-gold-500/20 text-gold-300 hover:text-white border border-white/5 flex items-center justify-center font-bold text-base transition-colors"
+                  title="Zoom Out (-)"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setCameraTarget(presets.isometric)}
-                className="px-2.5 py-1 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-                title="Isometric Room Angle"
-              >
-                Isometric
-              </button>
-              <button
-                type="button"
-                onClick={() => setCameraTarget(presets.front)}
-                className="px-2.5 py-1 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-                title="Front Desk Rows"
-              >
-                Front Rows
-              </button>
-              <button
-                type="button"
-                onClick={() => setCameraTarget(presets.back)}
-                className="px-2.5 py-1 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-                title="Back Desk Rows"
-              >
-                Back Rows
-              </button>
-              <button
-                type="button"
-                onClick={() => setCameraTarget(presets.topdown)}
-                className="px-2.5 py-1 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-                title="Top-Down Tactical Map"
-              >
-                Top-Down
-              </button>
+
+              {/* Camera Presets */}
+              <div className="flex items-center space-x-1">
+                <button
+                  type="button"
+                  onClick={() => setCameraTarget(presets.isometric)}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                  title="Cinematic Isometric Room Angle"
+                >
+                  Overview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCameraTarget(presets.front)}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                  title="Close-Up on Front Desk Rows"
+                >
+                  Front Rows
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCameraTarget(presets.back)}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                  title="Close-Up on Back Desk Rows"
+                >
+                  Back Rows
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCameraTarget(presets.topdown)}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                  title="90° Top-Down Tactical View"
+                >
+                  Top-Down
+                </button>
+              </div>
             </div>
 
             {/* Clean Floating Mode Guide (Bottom Left) */}
             <div className="absolute bottom-5 left-5 z-10 pointer-events-none hidden sm:block">
-              <div className="glass-panel px-3.5 py-2 rounded-xl text-[11px] text-slate-300 border-white/10 flex items-center space-x-2.5 shadow-xl">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="glass-panel px-4 py-2 rounded-xl text-[11px] text-slate-300 border-white/10 flex items-center space-x-2.5 shadow-xl">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>
-                  <strong>Interactive 3D Mode:</strong> Click any PC to inspect specs, log issue notes, or claim a vacant seat.
+                  <strong>Interactive 3D View:</strong> Drag to rotate, scroll or use <strong className="text-gold-300 font-mono">+ / -</strong> to zoom, click any PC to inspect.
                 </span>
               </div>
             </div>
