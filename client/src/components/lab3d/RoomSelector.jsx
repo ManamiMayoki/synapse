@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Building2, 
   Terminal, 
@@ -8,22 +8,22 @@ import {
   ChevronDown, 
   CheckCircle2, 
   AlertTriangle, 
-  Users, 
   Search, 
   Sparkles, 
   ShieldAlert, 
-  Layers, 
   Check, 
-  Shuffle, 
-  RotateCcw,
-  Plus
+  Plus,
+  Box,
+  LayoutGrid
 } from 'lucide-react';
-import { useLabData } from '../../context/LabDataContext';
+import { useLabData, DEPARTMENT_ROOMS } from '../../context/LabDataContext';
 import { useAuth } from '../../context/AuthContext';
 
 export default function RoomSelector({
   onOpenClaimModal,
   onOpenTeacherExamModal,
+  viewMode = '3d',
+  setViewMode = () => {},
 }) {
   const {
     rooms,
@@ -45,6 +45,24 @@ export default function RoomSelector({
 
   const { role, user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(e.target) && 
+        buttonRef.current && 
+        !buttonRef.current.contains(e.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const getRoomIcon = (id) => {
     switch (id) {
@@ -58,8 +76,11 @@ export default function RoomSelector({
 
   const ActiveIcon = getRoomIcon(activeRoomId);
 
+  // Guarantee that all 4 department labs are always available in the switcher
+  const displayRooms = (rooms && rooms.length >= 4) ? rooms : DEPARTMENT_ROOMS;
+
   return (
-    <div className="w-full bg-zinc-950/90 backdrop-blur-xl border-b border-gold-500/20 p-4 sm:px-6 select-none space-y-4">
+    <div className="relative z-50 w-full bg-zinc-950/95 backdrop-blur-2xl border-b border-gold-500/20 p-4 sm:px-6 select-none space-y-4 shadow-xl">
       
       {/* Top Bar: Room Dropdown Switcher + Room Info + Exam Notice */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -69,7 +90,9 @@ export default function RoomSelector({
           
           <div className="relative">
             <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
+              ref={buttonRef}
+              type="button"
+              onClick={() => setDropdownOpen((prev) => !prev)}
               className="flex items-center space-x-3 px-4 py-2.5 rounded-2xl bg-zinc-900 border border-gold-500/40 hover:border-gold-400 text-white font-bold text-sm transition-all shadow-glow-maroon"
             >
               <div 
@@ -90,33 +113,35 @@ export default function RoomSelector({
                   {activeRoom?.shortName || activeRoom?.name}
                 </p>
               </div>
-              <ChevronDown className={`w-4 h-4 text-gold-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-gold-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown Menu - Highest Z-Index, Always Floating On Top */}
             {dropdownOpen && (
               <div 
-                className="absolute left-0 mt-2 w-80 rounded-2xl glass-card bg-zinc-950/95 border-gold-500/40 shadow-2xl py-2 z-50 divide-y divide-white/5"
-                onMouseLeave={() => setDropdownOpen(false)}
+                ref={dropdownRef}
+                className="absolute left-0 top-full mt-2 w-84 rounded-2xl glass-card bg-zinc-950/98 border border-gold-500/50 shadow-2xl py-2 z-[100] divide-y divide-white/5 animate-in fade-in slide-in-from-top-2 duration-150"
               >
                 <div className="px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest text-gold-400 flex items-center justify-between">
                   <span>Select Department Lab Room</span>
-                  <span>4 Labs</span>
+                  <span>4 Labs Available</span>
                 </div>
 
-                {rooms.map((room) => {
-                  const Icon = getRoomIcon(room.roomId || room.id);
-                  const isSelected = activeRoomId === (room.roomId || room.id);
+                {displayRooms.map((room) => {
+                  const rId = room.roomId || room.id;
+                  const Icon = getRoomIcon(rId);
+                  const isSelected = activeRoomId === rId;
 
                   return (
                     <button
-                      key={room.roomId || room.id}
+                      key={rId}
+                      type="button"
                       onClick={() => {
-                        setActiveRoomId(room.roomId || room.id);
+                        setActiveRoomId(rId);
                         setDropdownOpen(false);
                       }}
                       className={`w-full text-left px-4 py-3 flex items-center space-x-3 transition-colors ${
-                        isSelected ? 'bg-gold-500/15 text-white' : 'hover:bg-white/5 text-slate-300'
+                        isSelected ? 'bg-gold-500/20 text-white font-bold' : 'hover:bg-white/5 text-slate-300'
                       }`}
                     >
                       <div 
@@ -153,7 +178,7 @@ export default function RoomSelector({
             <div className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-white/5 text-slate-300 flex items-center space-x-1.5">
               <span className="text-slate-400">Total:</span>
               <span className="font-bold text-white">
-                {activeRoom?.type === 'ec_lab' ? '8 Tables (2 PCs)' : `${workstations.length} PCs (8×4 Grid)`}
+                {activeRoom?.type === 'ec_lab' ? '8 Tables (2 PCs)' : `${workstations.length || 128} PCs (8×4 Grid)`}
               </span>
             </div>
 
@@ -174,16 +199,47 @@ export default function RoomSelector({
               <span className="text-slate-400">Claimed</span>
               <span>•</span>
               <span className="text-emerald-400 font-bold">{unallocatedCount}</span>
-              <span className="text-slate-400">Unallocated</span>
+              <span className="text-slate-400">Vacant</span>
             </div>
           </div>
         </div>
 
-        {/* Right: Semester First-Day Seating Actions & Teacher Exam Overrides */}
+        {/* Right: View Mode Toggle & Seating Actions */}
         <div className="flex flex-wrap items-center gap-2.5">
           
+          {/* 3D vs 2D View Switcher */}
+          <div className="bg-zinc-900 p-1 rounded-xl border border-white/10 flex items-center space-x-1">
+            <button
+              type="button"
+              onClick={() => setViewMode('3d')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
+                viewMode === '3d'
+                  ? 'bg-gradient-to-r from-maroon-700 to-gold-700 text-white shadow-glow-maroon font-bold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Interactive 3D University Lab Digital Twin"
+            >
+              <Box className="w-3.5 h-3.5" />
+              <span>3D Lab Twin</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('2d')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
+                viewMode === '2d'
+                  ? 'bg-gradient-to-r from-maroon-700 to-gold-700 text-white shadow-glow-maroon font-bold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="2D Tactical Floor Plan Overview"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>2D Tactical Plan</span>
+            </button>
+          </div>
+
           {/* Day-One Claim My Seat Button */}
           <button
+            type="button"
             onClick={onOpenClaimModal}
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-maroon-700 via-maroon-800 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white font-bold text-xs flex items-center space-x-2 transition-all shadow-glow-maroon"
             title="Claim your designated seat for the semester using [Student ID] + [Batch] (e.g. 364-32)"
@@ -194,6 +250,7 @@ export default function RoomSelector({
 
           {/* Teacher Exam Override Button (Teachers/Staff/Admin) */}
           <button
+            type="button"
             onClick={onOpenTeacherExamModal}
             className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-gold-300 border border-gold-500/40 font-bold text-xs flex items-center space-x-2 transition-all shadow-sm"
             title="Teacher Exam Override: Randomly or manually reallocate students across verified working PCs only"
@@ -214,18 +271,19 @@ export default function RoomSelector({
           
           {/* Unallocated Tracker Toggle Button */}
           <button
+            type="button"
             onClick={() => setUnallocatedOnly(!unallocatedOnly)}
             className={`px-3 py-1.5 rounded-xl font-bold flex items-center space-x-2 transition-all ${
               unallocatedOnly
                 ? 'bg-gradient-to-r from-emerald-900 to-emerald-700 text-white border border-emerald-400/60 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                 : 'bg-zinc-900 text-slate-300 border border-white/10 hover:border-gold-500/30'
             }`}
-            title="Toggle Unallocated Tracker: Highlights open PCs for students who missed day one"
+            title="Toggle Unallocated Tracker: Highlights open vacant PCs for students who missed day one"
           >
             <Sparkles className={`w-3.5 h-3.5 ${unallocatedOnly ? 'text-emerald-300 animate-spin' : 'text-slate-400'}`} />
-            <span>Unallocated Tracker {unallocatedOnly ? 'ON' : 'OFF'}</span>
+            <span>Vacant Seat Tracker {unallocatedOnly ? 'ON' : 'OFF'}</span>
             <span className="px-1.5 py-0.2 rounded bg-zinc-950 text-[10px] text-emerald-400 font-mono">
-              {unallocatedCount} Open
+              {unallocatedCount} Vacant
             </span>
           </button>
 
@@ -234,6 +292,7 @@ export default function RoomSelector({
             {['All', 'Working', 'Needs Repair', 'Fixed'].map((s) => (
               <button
                 key={s}
+                type="button"
                 onClick={() => setStatusFilter(s)}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
                   statusFilter === s
