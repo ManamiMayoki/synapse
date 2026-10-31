@@ -16,18 +16,34 @@ import {
   Calendar,
   Sparkles,
   Search,
-  Plus
+  Plus,
+  Monitor,
+  Armchair,
+  MapPin,
+  AlertCircle
 } from 'lucide-react';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const { checkouts, tickets, inventory, checkoutItem, workstations } = useLabData();
+  const { checkouts, tickets, inventory, checkoutItem, workstations, vacateSeat } = useLabData();
   const navigate = useNavigate();
 
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   const [selectedGearId, setSelectedGearId] = useState('');
   const [loanDays, setLoanDays] = useState(7);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Check if current student has an allocated seat (format [Student ID] + [Batch])
+  const studentTag = user?.batch && user?.studentId ? `${user.studentId}-${user.batch}` : user?.studentId;
+  const mySeat = workstations.find((w) => {
+    if (!w.allocatedTo) return false;
+    const a = w.allocatedTo;
+    return (
+      (user?.studentId && a.studentId === user.studentId) ||
+      (studentTag && a.tag === studentTag) ||
+      (user?.name && a.studentName?.toLowerCase() === user.name?.toLowerCase())
+    );
+  });
 
   // Filter student-specific data
   const myCheckouts = checkouts.filter(
@@ -124,10 +140,10 @@ export default function StudentDashboard() {
 
         <StatCard
           title="Lab Stations Online"
-          value={`${workstations.filter((w) => w.status === 'healthy').length}/24`}
-          subtitle="HPC Lab 101 status"
+          value={`${workstations.filter((w) => w.status === 'healthy').length}/${workstations.length}`}
+          subtitle="Across 4 Department Labs"
           icon={Cpu}
-          change="92% Available"
+          change="Operational"
           changeType="positive"
         />
 
@@ -139,6 +155,80 @@ export default function StudentDashboard() {
           change="Ready for loan"
           changeType="neutral"
         />
+      </div>
+
+      {/* Semester Day-One Seating Allocation Card */}
+      <div className="rounded-2xl glass-card p-6 border border-gold-500/20 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start space-x-4">
+            <div className={`p-3 rounded-2xl ${mySeat ? 'bg-gold-500/15 text-gold-400 border border-gold-500/30' : 'bg-maroon-500/15 text-rose-300 border border-maroon-500/30'}`}>
+              <Armchair className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs uppercase tracking-wider font-bold text-gold-400">Semester Day-One Seating</span>
+                {mySeat && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold">
+                    Allocated
+                  </span>
+                )}
+              </div>
+              {mySeat ? (
+                <>
+                  <h3 className="text-lg font-bold text-white mt-0.5">
+                    Assigned PC: <span className="text-gold-300 font-mono">{mySeat.pcId}</span>
+                  </h3>
+                  <div className="text-xs text-slate-300 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span>Room: <strong className="text-white">{mySeat.roomId.toUpperCase().replace('_', ' ')}</strong></span>
+                    <span>•</span>
+                    <span>Student Tag: <strong className="font-mono text-gold-300 font-bold bg-zinc-900/80 px-2 py-0.5 rounded border border-gold-500/30">{mySeat.allocatedTo?.tag || `${user?.studentId}-${user?.batch || '32'}`}</strong></span>
+                    <span>•</span>
+                    <span>Allocation: <span className="capitalize text-slate-200">{mySeat.allocatedTo?.allocationMode || 'Day-One Claim'}</span></span>
+                    <span>•</span>
+                    <span>PC Status: <span className={`font-semibold ${mySeat.status === 'Working' || mySeat.status === 'Fixed' ? 'text-emerald-400' : 'text-rose-400'}`}>{mySeat.status}</span></span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-bold text-white mt-0.5">
+                    No Lab Workstation Claimed Yet
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1 max-w-xl">
+                    Day-One seating claims are formatted strictly as <strong className="text-gold-300 font-mono">[Student ID] + [Batch]</strong> (e.g. <span className="font-mono text-white">364-32</span>). Missed day one? You can explore the room map to find unallocated workstations.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {mySeat ? (
+              <>
+                <button
+                  onClick={() => navigate('/lab3d')}
+                  className="px-4 py-2 rounded-xl bg-gold-500/15 hover:bg-gold-500/25 border border-gold-500/30 text-gold-300 text-xs font-semibold flex items-center space-x-1.5 transition-all"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Locate in Lab Map</span>
+                </button>
+                <button
+                  onClick={() => vacateSeat(mySeat.pcId)}
+                  className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-all"
+                >
+                  Vacate Seat
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => navigate('/lab3d')}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white font-bold text-xs flex items-center space-x-2 shadow-glow-maroon transition-all"
+              >
+                <Armchair className="w-4 h-4" />
+                <span>Claim Seat [ID-Batch]</span>
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Main Grid: Borrowed Items & Tickets */}
@@ -179,7 +269,7 @@ export default function StudentDashboard() {
               {myCheckouts.map((loan) => (
                 <div
                   key={loan.id}
-                  className="p-4 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-gold-500/30 transition-all flex items-center justify-between"
+                  className="p-4 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-gold-500/30 transition-all flex items-center justify-between gap-3"
                 >
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-white">{loan.itemName}</p>
@@ -192,8 +282,17 @@ export default function StudentDashboard() {
                       </span>
                     </div>
                   </div>
-                  <div>
+                  <div className="flex items-center space-x-2">
                     <StatusBadge status={loan.status} />
+                    {loan.status === 'active' && (
+                      <button
+                        onClick={() => returnItem(loan.id)}
+                        className="px-2.5 py-1 text-[11px] rounded-lg bg-zinc-800 hover:bg-zinc-700 text-slate-300 hover:text-white transition-colors"
+                        title="Return borrowed item to stock"
+                      >
+                        Return
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

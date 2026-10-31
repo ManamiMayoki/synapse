@@ -48,23 +48,23 @@ export default function WorkstationMesh({
       }}
     >
       {/* Station Holographic Floating Marker */}
-      <Html position={[0, 2.3, 0]} center distanceFactor={12} zIndexRange={[100, 0]}>
+      <Html position={[0, 2.3, 0]} center distanceFactor={11} zIndexRange={[100, 0]}>
         <div
           className={`pointer-events-none select-none flex flex-col items-center transition-all duration-300 ${
-            hovered || isSelected ? 'scale-110' : 'scale-90 opacity-80'
+            hovered || isSelected ? 'scale-115' : 'scale-95 opacity-85'
           }`}
         >
           <div
-            className={`px-2 py-0.5 rounded-full border text-[10px] font-mono font-bold tracking-wider shadow-lg flex items-center space-x-1 backdrop-blur-md ${
+            className={`px-2.5 py-1 rounded-full border text-[10px] font-mono font-bold tracking-wider shadow-lg flex items-center space-x-1.5 backdrop-blur-md ${
               station.status === 'faulty'
-                ? 'bg-maroon-950/90 text-rose-300 border-rose-500/60 shadow-glow-maroon'
+                ? 'bg-maroon-950/95 text-rose-300 border-rose-500/80 shadow-glow-maroon'
                 : station.status === 'warning'
-                ? 'bg-amber-950/90 text-amber-300 border-amber-500/50'
-                : 'bg-zinc-950/80 text-emerald-300 border-emerald-500/40'
+                ? 'bg-amber-950/95 text-amber-300 border-amber-500/70 shadow-sm'
+                : 'bg-zinc-950/90 text-emerald-300 border-emerald-500/50'
             }`}
           >
             <span
-              className={`w-1.5 h-1.5 rounded-full ${
+              className={`w-2 h-2 rounded-full ${
                 station.status === 'faulty'
                   ? 'bg-rose-500 animate-ping'
                   : station.status === 'warning'
@@ -72,13 +72,16 @@ export default function WorkstationMesh({
                   : 'bg-emerald-400'
               }`}
             />
-            <span>{station.id}</span>
+            <span className="text-gold-300/90 text-[9px]">Col {station.column || (station.number <= 4 ? 'A' : 'B')}</span>
+            <span>•</span>
+            <span className="text-white font-extrabold">{station.displayId || station.id}</span>
           </div>
 
           {/* Quick status alert flag on hover */}
-          {hovered && station.alertMessage && (
-            <div className="mt-1 px-2 py-0.5 rounded bg-zinc-950/95 border border-maroon-600/50 text-[9px] text-slate-300 max-w-[150px] text-center shadow-xl truncate">
-              {station.alertMessage}
+          {hovered && (
+            <div className="mt-1 px-2.5 py-1 rounded-lg bg-zinc-950/95 border border-gold-500/30 text-[9px] text-slate-200 max-w-[180px] text-center shadow-2xl backdrop-blur-md">
+              <p className="font-semibold text-gold-300">{station.labCode} • {station.columnLabel || (station.number <= 4 ? 'Column A' : 'Column B')}</p>
+              <p className="truncate text-slate-400">{station.alertMessage || (station.status === 'healthy' ? 'Status: Operational' : 'Action Required')}</p>
             </div>
           )}
         </div>

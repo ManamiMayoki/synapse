@@ -9,29 +9,32 @@ export default function StatusBadge({ status, size = 'sm' }) {
 
   switch (norm) {
     case 'healthy':
+    case 'operational':
     case 'available':
     case 'active':
     case 'resolved':
-      style = 'bg-emerald-950/50 text-emerald-300 border-emerald-500/30';
+      style = 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.2)]';
       dotColor = 'bg-emerald-400 animate-pulse';
-      label = norm === 'healthy' ? 'Healthy' : norm === 'resolved' ? 'Resolved' : 'Available';
+      label = (norm === 'healthy' || norm === 'operational') ? 'Operational' : norm === 'resolved' ? 'Resolved' : norm === 'active' ? 'Active Loan' : 'Available';
       break;
     case 'warning':
+    case 'minor_issue':
     case 'in_progress':
     case 'servicing':
     case 'medium':
-      style = 'bg-amber-950/50 text-amber-300 border-amber-500/40';
+      style = 'bg-amber-950/60 text-amber-300 border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.2)]';
       dotColor = 'bg-amber-400';
-      label = norm === 'in_progress' ? 'In Progress' : 'Warning';
+      label = (norm === 'warning' || norm === 'minor_issue') ? 'Minor Issue' : norm === 'in_progress' ? 'In Progress' : 'Warning';
       break;
     case 'faulty':
+    case 'maintenance':
     case 'critical':
     case 'high':
     case 'down':
     case 'overdue':
-      style = 'bg-maroon-950/80 text-maroon-300 border-maroon-600/50 shadow-[0_0_12px_rgba(163,59,38,0.3)]';
-      dotColor = 'bg-red-500 animate-ping';
-      label = norm === 'faulty' ? 'Needs Maintenance' : norm === 'overdue' ? 'Overdue Return' : status;
+      style = 'bg-maroon-950/80 text-rose-300 border-rose-500/60 shadow-[0_0_16px_rgba(163,59,38,0.4)]';
+      dotColor = 'bg-rose-500 animate-ping';
+      label = (norm === 'faulty' || norm === 'maintenance') ? 'Maintenance Needed' : norm === 'overdue' ? 'Overdue Return' : status;
       break;
     case 'pending':
     case 'low':

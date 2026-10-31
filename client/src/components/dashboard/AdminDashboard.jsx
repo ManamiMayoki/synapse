@@ -205,59 +205,86 @@ export default function AdminDashboard() {
           
           {/* Workstation Fleet Status Overview */}
           <div className="rounded-2xl glass-card p-6 space-y-4">
-            <h3 className="text-base font-bold text-white">Workstation Fleet Status</h3>
-            <p className="text-xs text-slate-400">Status breakdown across the 24 computer lab workstations</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-white">Department Workstation Fleet Status</h3>
+                <p className="text-xs text-slate-400">Status breakdown across all 4 Department Labs ({workstations.length} PCs Total)</p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-gold-500/10 border border-gold-500/30 text-gold-300">
+                2 Columns × 4 PCs Per Lab
+              </span>
+            </div>
 
             <div className="space-y-3 pt-2">
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Optimal Health (Healthy)</span>
+                  <span className="text-slate-300 font-medium">Operational (Green)</span>
                   <span className="font-mono text-emerald-400 font-bold">
-                    {workstations.filter((w) => w.status === 'healthy').length} / 24
+                    {workstations.filter((w) => w.status === 'healthy').length} / {workstations.length}
                   </span>
                 </div>
                 <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-emerald-500 rounded-full"
-                    style={{ width: `${(workstations.filter((w) => w.status === 'healthy').length / 24) * 100}%` }}
+                    style={{ width: `${(workstations.filter((w) => w.status === 'healthy').length / workstations.length) * 100}%` }}
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Performance Warnings</span>
+                  <span className="text-slate-300 font-medium">Minor Issues (Yellow)</span>
                   <span className="font-mono text-amber-400 font-bold">
-                    {workstations.filter((w) => w.status === 'warning').length} / 24
+                    {workstations.filter((w) => w.status === 'warning').length} / {workstations.length}
                   </span>
                 </div>
                 <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-amber-500 rounded-full"
-                    style={{ width: `${(workstations.filter((w) => w.status === 'warning').length / 24) * 100}%` }}
+                    style={{ width: `${(workstations.filter((w) => w.status === 'warning').length / workstations.length) * 100}%` }}
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Critical Maintenance Required</span>
+                  <span className="text-slate-300 font-medium">Maintenance Needed (Red)</span>
                   <span className="font-mono text-rose-400 font-bold">
-                    {workstations.filter((w) => w.status === 'faulty').length} / 24
+                    {workstations.filter((w) => w.status === 'faulty').length} / {workstations.length}
                   </span>
                 </div>
                 <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-rose-500 rounded-full"
-                    style={{ width: `${(workstations.filter((w) => w.status === 'faulty').length / 24) * 100}%` }}
+                    style={{ width: `${(workstations.filter((w) => w.status === 'faulty').length / workstations.length) * 100}%` }}
                   />
                 </div>
               </div>
             </div>
 
+            {/* Per-Lab Quick Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+              {[
+                { code: 'Lab 201', name: 'CP Lab', id: 'lab_201' },
+                { code: 'Lab 203', name: 'General', id: 'lab_203' },
+                { code: 'Lab 302', name: 'HPC/Thesis', id: 'lab_302' },
+                { code: 'EC Lab', name: '1st Floor', id: 'lab_ec' },
+              ].map((lab) => {
+                const labWs = workstations.filter((w) => w.labId === lab.id);
+                const healthy = labWs.filter((w) => w.status === 'healthy').length;
+                return (
+                  <div key={lab.id} className="p-2.5 rounded-xl bg-zinc-950/70 border border-white/5 text-center">
+                    <p className="text-[11px] font-bold text-white">{lab.code}</p>
+                    <p className="text-[9px] text-slate-400">{lab.name}</p>
+                    <p className="text-xs font-mono font-bold text-emerald-400 mt-1">{healthy}/8 Online</p>
+                  </div>
+                );
+              })}
+            </div>
+
             <div className="p-4 rounded-xl bg-zinc-950/70 border border-white/5 text-xs text-slate-400 flex items-center justify-between">
-              <span>Overall Lab Health Score:</span>
-              <span className="font-mono text-base font-extrabold text-gold-400">92.4%</span>
+              <span>Department Lab Health Score:</span>
+              <span className="font-mono text-base font-extrabold text-gold-400">93.8%</span>
             </div>
           </div>
 

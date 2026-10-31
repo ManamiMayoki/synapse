@@ -34,7 +34,14 @@ app.use('/api', limiter);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Health Check Endpoint (Lab-01 & Lab-02)
+// Import MVC Route Handlers
+const authRoutes = require('./routes/authRoutes');
+const roomRoutes = require('./routes/roomRoutes');
+const seatingRoutes = require('./routes/seatingRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
+
+// Health Check Endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'UP',
@@ -46,6 +53,13 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Mount RESTful API Endpoints
+app.use('/api/auth', authRoutes);
+app.use('/api/rooms', roomRoutes);
+app.use('/api/seating', seatingRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/inventory', inventoryRoutes);
+
 // API Overview Endpoint
 app.get('/api', (req, res) => {
   res.status(200).json({
@@ -55,9 +69,10 @@ app.get('/api', (req, res) => {
     endpoints: {
       health: '/api/health',
       auth: '/api/auth',
-      inventory: '/api/inventory',
+      rooms: '/api/rooms',
+      seating: '/api/seating',
       tickets: '/api/tickets',
-      workstations: '/api/workstations',
+      inventory: '/api/inventory',
     },
   });
 });

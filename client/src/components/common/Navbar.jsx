@@ -22,8 +22,10 @@ export default function Navbar() {
   const location = useLocation();
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
 
-  const openTicketsCount = tickets.filter((t) => t.status !== 'resolved').length;
-  const faultyStationsCount = workstations.filter((w) => w.status !== 'healthy').length;
+  const openTicketsCount = (tickets || []).filter((t) => t.status !== 'resolved').length;
+  const faultyStationsCount = (workstations || []).filter(
+    (w) => w.status !== 'healthy' && w.status !== 'Working' && w.status !== 'Fixed'
+  ).length;
 
   const handleLogout = () => {
     logout();

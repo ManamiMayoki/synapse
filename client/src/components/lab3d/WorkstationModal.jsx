@@ -13,448 +13,435 @@ import {
   AlertTriangle, 
   CheckCircle2, 
   Send, 
-  Layers, 
   Clock, 
   ShieldAlert,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Users,
+  FileText,
+  Plus,
+  RotateCcw
 } from 'lucide-react';
 
-export default function WorkstationModal({ station, onClose }) {
+export default function WorkstationModal({ station, onClose, onOpenClaimModal }) {
   const { role, user } = useAuth();
-  const { createTicket, inventory, checkoutItem, updateWorkstationStatus } = useLabData();
+  const { 
+    updatePcStatus, 
+    addPcNote, 
+    vacateSeat, 
+    activeRoom 
+  } = useLabData();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'report' | 'checkout' | 'admin'
+  const [activeTab, setActiveTab] = useState('notes'); // 'notes' | 'status' | 'seating' | 'specs'
 
-  // Ticket Form State
-  const [ticketCategory, setTicketCategory] = useState('Hardware');
-  const [ticketPriority, setTicketPriority] = useState('medium');
-  const [ticketTitle, setTicketTitle] = useState('');
-  const [ticketDescription, setTicketDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Custom Descriptive Note Form State
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteDescription, setNoteDescription] = useState('');
+  const [noteStatusChange, setNoteStatusChange] = useState('');
+  const [submittingNote, setSubmittingNote] = useState(false);
 
-  // Equipment Checkout State
-  const [selectedGearId, setSelectedGearId] = useState('');
+  // Status Direct Update State
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   if (!station) return null;
 
-  const handleTicketSubmit = (e) => {
-    e.preventDefault();
-    if (!ticketTitle.trim()) {
-      addToast('Please provide a brief title describing the issue.', 'warning', 'Missing Details');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setTimeout(() => {
-      createTicket({
-        workstationId: station.id,
-        category: ticketCategory,
-        priority: ticketPriority,
-        title: ticketTitle,
-        description: ticketDescription || 'Reported from 3D Lab Station Inspector.',
-        reporter: `${user?.name || 'Student'} (${user?.studentId || user?.staffId || 'CSE'})`,
-      });
-
-      setIsSubmitting(false);
-      setTicketTitle('');
-      setTicketDescription('');
-      setActiveTab('specs');
-    }, 400);
+  const handleStatusChange = async (newStatus) => {
+    setUpdatingStatus(true);
+    await updatePcStatus(station.pcId, newStatus);
+    setUpdatingStatus(false);
   };
 
-  const handleGearCheckout = () => {
-    if (!selectedGearId) {
-      addToast('Please select a piece of hardware from the catalog.', 'warning', 'No Item Selected');
+  const handleAddNote = async (e) => {
+    e.preventDefault();
+    if (!noteDescription.trim()) {
+      addToast('Please provide a descriptive note explaining the problem or fix.', 'warning', 'Missing Details');
       return;
     }
 
-    const success = checkoutItem({
-      itemId: selectedGearId,
-      studentId: user?.studentId || 'CSE-2022-042',
-      studentName: user?.name || 'Alex Vance',
-      days: 7,
+    setSubmittingNote(true);
+    const res = await addPcNote(station.pcId, {
+      title: noteTitle.trim() || (noteStatusChange ? `Status set to ${noteStatusChange}` : 'Maintenance Log'),
+      description: noteDescription.trim(),
+      newStatus: noteStatusChange || undefined,
+      reportedBy: user?.name || 'Academic Lab Member',
+      role: role || 'student',
     });
 
-    if (success) {
-      setSelectedGearId('');
-      setActiveTab('specs');
+    setSubmittingNote(false);
+    if (res?.success) {
+      setNoteTitle('');
+      setNoteDescription('');
+      setNoteStatusChange('');
     }
+  };
+
+  const handleVacate = async () => {
+    await vacateSeat(station.pcId);
   };
 
   return (
     <Modal
       isOpen={!!station}
       onClose={onClose}
-      title={`${station.id} — Workstation Inspector`}
+      title={`${station.pcId} — Workstation Inspector & Notes`}
       maxWidth="max-w-2xl"
     >
-      {/* Top Banner with Status & Quick ID */}
-      <div className="p-4 rounded-xl glass-card bg-zinc-950/80 mb-6 flex flex-wrap items-center justify-between gap-4 border-gold-500/20">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-maroon-800 to-gold-700/60 flex items-center justify-center font-mono font-black text-xl text-gold-300 shadow-glow-maroon border border-gold-500/40">
-            {station.number}
+      {/* Top Banner with Status & Seating Tag */}
+      <div className="p-4 rounded-2xl glass-card bg-zinc-950/90 mb-5 flex flex-wrap items-center justify-between gap-4 border-gold-500/30 shadow-2xl">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-maroon-800 via-maroon-900 to-gold-700/70 flex flex-col items-center justify-center font-mono font-black text-gold-300 shadow-glow-maroon border border-gold-500/40">
+            <span className="text-[9px] uppercase font-bold text-gold-400/80 tracking-widest">
+              {station.slotLabel || 'PC'}
+            </span>
+            <span className="text-lg leading-tight font-extrabold">{station.displayId}</span>
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <h4 className="text-lg font-bold text-white tracking-wide">{station.id}</h4>
+            <div className="flex items-center space-x-2.5">
+              <h4 className="text-lg font-bold text-white tracking-wide">{station.pcId}</h4>
               <StatusBadge status={station.status} />
             </div>
-            <p className="text-xs text-slate-400">
-              Row {station.row} • Position {station.column} • {station.currentOccupant}
+            <p className="text-xs text-slate-300 font-medium">
+              <span className="text-gold-300 font-semibold">{station.roomName || activeRoom?.name}</span> • {station.slotLabel}
+            </p>
+            <p className="text-[11px] text-slate-400">
+              Allocation:{' '}
+              {station.allocatedTo?.tag ? (
+                <span className="font-mono font-bold text-gold-300 bg-maroon-950/60 px-1.5 py-0.5 rounded border border-gold-500/30">
+                  [{station.allocatedTo.tag}] ({station.allocatedTo.studentName || 'Student'})
+                </span>
+              ) : (
+                <span className="text-emerald-400 font-semibold font-mono">Unallocated (Open Seat)</span>
+              )}
             </p>
           </div>
         </div>
 
-        {/* Predictive AI Risk Pill */}
-        <div className="text-right">
-          <div className="flex items-center space-x-1.5 justify-end">
-            <Sparkles className="w-3.5 h-3.5 text-gold-400" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              AI Risk Index
-            </span>
+        {/* Quick Status Buttons */}
+        <div className="text-right flex flex-col items-end space-y-1">
+          <span className="text-[10px] uppercase font-mono font-bold text-slate-400">Update Status:</span>
+          <div className="flex items-center space-x-1.5">
+            <button
+              onClick={() => handleStatusChange('Working')}
+              disabled={updatingStatus || station.status === 'Working'}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
+                station.status === 'Working'
+                  ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50 shadow-sm'
+                  : 'bg-zinc-900 text-slate-400 border-white/5 hover:text-emerald-300 hover:border-emerald-500/30'
+              }`}
+            >
+              Working
+            </button>
+
+            <button
+              onClick={() => handleStatusChange('Needs Repair')}
+              disabled={updatingStatus || station.status === 'Needs Repair'}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
+                station.status === 'Needs Repair'
+                  ? 'bg-maroon-950 text-rose-300 border-rose-500/60 shadow-glow-maroon'
+                  : 'bg-zinc-900 text-slate-400 border-white/5 hover:text-rose-300 hover:border-rose-500/30'
+              }`}
+            >
+              Needs Repair
+            </button>
+
+            <button
+              onClick={() => handleStatusChange('Fixed')}
+              disabled={updatingStatus || station.status === 'Fixed'}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
+                station.status === 'Fixed'
+                  ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-sm'
+                  : 'bg-zinc-900 text-slate-400 border-white/5 hover:text-cyan-300 hover:border-cyan-500/30'
+              }`}
+            >
+              Fixed
+            </button>
           </div>
-          <p
-            className={`text-lg font-extrabold font-mono ${
-              station.riskScore > 80
-                ? 'text-rose-400'
-                : station.riskScore > 50
-                ? 'text-amber-400'
-                : 'text-emerald-400'
-            }`}
-          >
-            {station.riskScore}% Probability
-          </p>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex items-center space-x-2 border-b border-white/10 mb-6 overflow-x-auto pb-1">
+      <div className="flex items-center space-x-2 border-b border-white/10 mb-5 overflow-x-auto pb-1 text-xs font-semibold">
+        <button
+          onClick={() => setActiveTab('notes')}
+          className={`px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
+            activeTab === 'notes'
+              ? 'bg-gradient-to-r from-maroon-800 to-gold-800 text-white border border-gold-500/40 shadow-sm'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          <span>Descriptive Notes & Tickets ({station.notes?.length || 0})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('seating')}
+          className={`px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
+            activeTab === 'seating'
+              ? 'bg-gradient-to-r from-maroon-800 to-gold-800 text-white border border-gold-500/40 shadow-sm'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>Seating Allocation</span>
+        </button>
+
         <button
           onClick={() => setActiveTab('specs')}
-          className={`px-3.5 py-2 text-xs font-medium rounded-lg transition-all flex items-center space-x-1.5 ${
+          className={`px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
             activeTab === 'specs'
-              ? 'bg-gold-500/15 text-gold-300 border border-gold-500/30'
+              ? 'bg-gradient-to-r from-maroon-800 to-gold-800 text-white border border-gold-500/40 shadow-sm'
               : 'text-slate-400 hover:text-white'
           }`}
         >
           <Cpu className="w-3.5 h-3.5" />
           <span>Hardware Specs</span>
         </button>
-
-        <button
-          onClick={() => setActiveTab('report')}
-          className={`px-3.5 py-2 text-xs font-medium rounded-lg transition-all flex items-center space-x-1.5 ${
-            activeTab === 'report'
-              ? 'bg-maroon-700/30 text-rose-300 border border-maroon-600/40 shadow-glow-maroon'
-              : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          <Wrench className="w-3.5 h-3.5" />
-          <span>Report Issue</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('checkout')}
-          className={`px-3.5 py-2 text-xs font-medium rounded-lg transition-all flex items-center space-x-1.5 ${
-            activeTab === 'checkout'
-              ? 'bg-gold-500/15 text-gold-300 border border-gold-500/30'
-              : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          <Layers className="w-3.5 h-3.5" />
-          <span>Lab Checkout</span>
-        </button>
-
-        {(role === 'staff' || role === 'admin') && (
-          <button
-            onClick={() => setActiveTab('admin')}
-            className={`px-3.5 py-2 text-xs font-medium rounded-lg transition-all flex items-center space-x-1.5 ${
-              activeTab === 'admin'
-                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Staff Overrides</span>
-          </button>
-        )}
       </div>
 
-      {/* TAB 1: Hardware Specs */}
+      {/* TAB 1: Descriptive Notes & Ticketing */}
+      {activeTab === 'notes' && (
+        <div className="space-y-5 text-xs">
+          
+          {/* Form to leave a custom descriptive note */}
+          <form onSubmit={handleAddNote} className="p-4 rounded-2xl bg-zinc-900/90 border border-gold-500/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-white flex items-center space-x-1.5 text-xs">
+                <Edit3 className="w-3.5 h-3.5 text-gold-400" />
+                <span>Leave a Custom Descriptive Note or Incident Fix</span>
+              </span>
+              <span className="text-[10px] text-slate-400">Explaining exact problem or fix</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Note summary (e.g. Spacebar stuck, GPU fan jitter)"
+                  value={noteTitle}
+                  onChange={(e) => setNoteTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-gold-400"
+                />
+              </div>
+
+              <div>
+                <select
+                  value={noteStatusChange}
+                  onChange={(e) => setNoteStatusChange(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-slate-300 text-xs focus:outline-none focus:border-gold-400 cursor-pointer"
+                >
+                  <option value="">Keep status ({station.status})</option>
+                  <option value="Working">Mark as Working (Operational)</option>
+                  <option value="Needs Repair">Mark as Needs Repair (Take Offline)</option>
+                  <option value="Fixed">Mark as Fixed (Serviced)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <textarea
+                rows={3}
+                required
+                placeholder="Write a custom descriptive note explaining the exact problem observed, error messages, or fix applied (e.g. Re-seated RAM module, replaced Cat6 cable, reapplied thermal paste)..."
+                value={noteDescription}
+                onChange={(e) => setNoteDescription(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-gold-400 resize-none leading-relaxed"
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={submittingNote || !noteDescription.trim()}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-glow-maroon disabled:opacity-40 flex items-center space-x-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{submittingNote ? 'Saving Note...' : 'Log Custom Note'}</span>
+              </button>
+            </div>
+          </form>
+
+          {/* Chronological Notes History */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-slate-200 text-xs uppercase tracking-wider flex items-center space-x-1.5">
+              <Clock className="w-3.5 h-3.5 text-gold-400" />
+              <span>Ticket & Note History Timeline ({station.notes?.length || 0})</span>
+            </h5>
+
+            {(!station.notes || station.notes.length === 0) ? (
+              <div className="p-6 rounded-2xl bg-zinc-900/50 border border-dashed border-white/10 text-center text-slate-500">
+                <FileText className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                <p className="text-xs">No issue tickets or notes logged for {station.pcId} yet.</p>
+                <p className="text-[10px] text-slate-600">Students and staff can submit diagnostic notes above.</p>
+              </div>
+            ) : (
+              <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                {station.notes.map((note, idx) => (
+                  <div
+                    key={note._id || idx}
+                    className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/5 space-y-1.5 hover:border-gold-500/30 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white text-xs">{note.title}</span>
+                      <div className="flex items-center space-x-2 text-[10px] font-mono">
+                        {note.previousStatus && note.newStatus && note.previousStatus !== note.newStatus && (
+                          <span className="text-slate-400">
+                            {note.previousStatus} ➔ <strong className="text-gold-300">{note.newStatus}</strong>
+                          </span>
+                        )}
+                        <span className="text-slate-500">
+                          {new Date(note.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-slate-300 text-xs leading-relaxed">
+                      {note.description}
+                    </p>
+
+                    <div className="pt-1.5 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                      <span>Logged by: <strong className="text-slate-300">{note.reportedBy}</strong> ({note.role})</span>
+                      <span>Verified</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+      )}
+
+      {/* TAB 2: Seating Allocation & Claim */}
+      {activeTab === 'seating' && (
+        <div className="space-y-4 text-xs">
+          
+          <div className="p-4 rounded-2xl bg-zinc-900/80 border border-white/10 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-white text-sm">Seating Status</span>
+              {station.allocatedTo?.tag ? (
+                <span className="px-2.5 py-1 rounded-full font-mono text-xs font-bold bg-maroon-700/40 text-gold-300 border border-gold-500/40">
+                  Allocated [Student ID + Batch: {station.allocatedTo.tag}]
+                </span>
+              ) : (
+                <span className="px-2.5 py-1 rounded-full font-mono text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                  Unallocated (Open Seat)
+                </span>
+              )}
+            </div>
+
+            {station.allocatedTo?.tag ? (
+              <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-zinc-950 font-mono text-xs">
+                <div>
+                  <p className="text-slate-400 text-[10px]">Student Tag</p>
+                  <p className="text-gold-300 font-bold text-sm">{station.allocatedTo.tag}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-[10px]">Student Name</p>
+                  <p className="text-white font-medium">{station.allocatedTo.studentName || 'Enrolled Student'}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-[10px]">Claimed Date</p>
+                  <p className="text-slate-300">
+                    {station.allocatedTo.claimedAt ? new Date(station.allocatedTo.claimedAt).toLocaleDateString() : 'Day One'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-[10px]">Allocation Mode</p>
+                  <p className="text-cyan-300 capitalize">{station.allocatedTo.allocationMode?.replace('_', ' ') || 'Student Claim'}</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-400 leading-relaxed">
+                This workstation is currently open. Students who missed day one can claim this seat for the semester.
+              </p>
+            )}
+
+            <div className="pt-2 flex items-center justify-between border-t border-white/5">
+              {station.allocatedTo?.tag ? (
+                <button
+                  onClick={handleVacate}
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-rose-300 text-xs font-semibold transition-colors"
+                >
+                  Vacate Seat (Make Unallocated)
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenClaimModal && onOpenClaimModal(station.pcId);
+                  }}
+                  disabled={station.status === 'Needs Repair'}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white font-bold text-xs uppercase tracking-wider shadow-glow-maroon disabled:opacity-40"
+                >
+                  Claim This Seat ([Student ID] + [Batch])
+                </button>
+              )}
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* TAB 3: Hardware Specs */}
       {activeTab === 'specs' && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-start space-x-3">
+        <div className="space-y-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/5 flex items-start space-x-3">
               <Cpu className="w-4 h-4 text-gold-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-slate-400 font-medium">Processor (CPU)</p>
-                <p className="text-white font-semibold">{station.specs.cpu}</p>
+                <p className="text-slate-400 font-medium">Processor</p>
+                <p className="text-white font-semibold">{station.specs?.cpu || 'Intel Core i7'}</p>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-start space-x-3">
+            <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/5 flex items-start space-x-3">
               <Sparkles className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-slate-400 font-medium">Graphics Engine (GPU)</p>
-                <p className="text-white font-semibold">{station.specs.gpu}</p>
+                <p className="text-slate-400 font-medium">Graphics Engine</p>
+                <p className="text-white font-semibold">{station.specs?.gpu || 'NVIDIA RTX'}</p>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-start space-x-3">
+            <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/5 flex items-start space-x-3">
               <HardDrive className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-slate-400 font-medium">Memory & Storage</p>
-                <p className="text-white font-semibold">
-                  {station.specs.ram} • {station.specs.storage}
-                </p>
+                <p className="text-slate-400 font-medium">RAM & Storage</p>
+                <p className="text-white font-semibold">{station.specs?.ram} • {station.specs?.storage}</p>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-start space-x-3">
-              <Monitor className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-slate-400 font-medium">Display Matrix</p>
-                <p className="text-white font-semibold">{station.specs.displays}</p>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-start space-x-3">
+            <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/5 flex items-start space-x-3">
               <Wifi className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-slate-400 font-medium">Network Interfaces</p>
-                <p className="font-mono text-white font-semibold">
-                  IP: {station.specs.ipAddress}
-                </p>
-                <p className="font-mono text-[10px] text-slate-400">
-                  MAC: {station.specs.macAddress}
-                </p>
+                <p className="text-slate-400 font-medium">IP Address & OS</p>
+                <p className="font-mono text-white font-semibold">{station.specs?.ipAddress}</p>
+                <p className="text-[10px] text-slate-400">{station.specs?.os}</p>
               </div>
             </div>
-
-            <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-start space-x-3">
-              <Clock className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-slate-400 font-medium">Operating System & Maint.</p>
-                <p className="text-white font-semibold">{station.specs.os}</p>
-                <p className="text-[10px] text-slate-400">Last Serviced: {station.lastMaintenance}</p>
-              </div>
-            </div>
-          </div>
-
-          {station.alertMessage && (
-            <div className="p-3.5 rounded-xl bg-maroon-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-center space-x-2.5">
-              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
-              <span>
-                <strong>Active Diagnostic Alert:</strong> {station.alertMessage}
-              </span>
-            </div>
-          )}
-
-          <div className="pt-2 flex justify-end">
-            <button
-              onClick={() => setActiveTab('report')}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white text-xs font-semibold flex items-center space-x-2 transition-all shadow-md"
-            >
-              <Wrench className="w-3.5 h-3.5" />
-              <span>Report Fault on {station.id}</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: Instant Issue Reporting */}
-      {activeTab === 'report' && (
-        <form onSubmit={handleTicketSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-              Incident Category
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {['Hardware', 'Software', 'Network'].map((cat) => (
-                <button
-                  type="button"
-                  key={cat}
-                  onClick={() => setTicketCategory(cat)}
-                  className={`py-2 text-xs font-semibold rounded-lg border transition-all ${
-                    ticketCategory === cat
-                      ? 'bg-maroon-800/80 text-white border-gold-500/40 shadow-sm'
-                      : 'bg-zinc-900/80 text-slate-400 border-white/5 hover:text-white'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-              Severity / Priority
-            </label>
-            <div className="grid grid-cols-4 gap-2 text-xs">
-              {[
-                { level: 'low', label: 'Low', color: 'border-slate-600' },
-                { level: 'medium', label: 'Medium', color: 'border-amber-500/40' },
-                { level: 'high', label: 'High', color: 'border-maroon-600/60' },
-                { level: 'critical', label: 'Critical', color: 'border-rose-600' },
-              ].map((p) => (
-                <button
-                  type="button"
-                  key={p.level}
-                  onClick={() => setTicketPriority(p.level)}
-                  className={`py-1.5 font-medium rounded-lg border transition-all ${
-                    ticketPriority === p.level
-                      ? 'bg-gradient-to-r from-maroon-800 to-gold-700 text-white font-bold border-gold-400 shadow-sm'
-                      : 'bg-zinc-900/70 text-slate-400 border-white/5 hover:text-white'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-              Issue Summary
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Display artifacting, Blue screen, Loose USB port"
-              value={ticketTitle}
-              onChange={(e) => setTicketTitle(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900/90 border border-white/10 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-gold-400 transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-              Detailed Symptoms (Optional)
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Describe error messages, steps to reproduce, or odd fan noise..."
-              value={ticketDescription}
-              onChange={(e) => setTicketDescription(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900/90 border border-white/10 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-gold-400 transition-colors resize-none"
-            />
-          </div>
-
-          <div className="pt-2 flex items-center justify-between">
-            <span className="text-[11px] text-slate-400">
-              Station {station.id} will be flagged for staff inspection.
-            </span>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white text-xs font-bold flex items-center space-x-2 transition-all shadow-glow-maroon disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>{isSubmitting ? 'Submitting...' : 'Submit Maintenance Ticket'}</span>
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* TAB 3: Lab Equipment Checkout */}
-      {activeTab === 'checkout' && (
-        <div className="space-y-4">
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Reserve testing gear, microcontrollers, or embedded dev kits for use at workstation{' '}
-            <strong className="text-gold-300">{station.id}</strong>.
-          </p>
-
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-              Select Available Hardware
-            </label>
-            <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
-              {inventory.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => item.availableQty > 0 && setSelectedGearId(item.id)}
-                  className={`p-3 rounded-xl border text-xs cursor-pointer flex items-center justify-between transition-all ${
-                    selectedGearId === item.id
-                      ? 'bg-gold-500/15 border-gold-400 shadow-sm text-white'
-                      : item.availableQty > 0
-                      ? 'bg-zinc-900/60 border-white/5 hover:border-white/20 text-slate-300'
-                      : 'bg-zinc-900/30 border-white/5 opacity-50 cursor-not-allowed text-slate-500'
-                  }`}
-                >
-                  <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-[10px] text-slate-400">
-                      {item.sku} • {item.location}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span
-                      className={`font-mono text-xs font-bold ${
-                        item.availableQty > 0 ? 'text-emerald-400' : 'text-rose-400'
-                      }`}
-                    >
-                      {item.availableQty} available
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-            <span className="text-[11px] text-slate-400">Standard checkout period: 7 Days</span>
-            <button
-              onClick={handleGearCheckout}
-              disabled={!selectedGearId}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold-600 to-maroon-700 hover:from-gold-500 hover:to-maroon-600 text-white text-xs font-bold flex items-center space-x-2 transition-all shadow-md disabled:opacity-40"
-            >
-              <span>Confirm Lab Checkout</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: Staff / Admin Overrides */}
-      {activeTab === 'admin' && (role === 'staff' || role === 'admin') && (
-        <div className="space-y-4">
-          <p className="text-xs text-slate-300">
-            Authorized technician tools to override workstation operational health state directly:
-          </p>
-
-          <div className="grid grid-cols-3 gap-3">
-            <button
-              onClick={() => updateWorkstationStatus(station.id, 'healthy')}
-              className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 hover:bg-emerald-900/40 text-emerald-300 text-xs font-bold flex flex-col items-center space-y-1 transition-all"
-            >
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              <span>Mark Healthy</span>
-              <span className="text-[9px] font-normal text-slate-400">All tests passing</span>
-            </button>
-
-            <button
-              onClick={() => updateWorkstationStatus(station.id, 'warning')}
-              className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/40 hover:bg-amber-900/40 text-amber-300 text-xs font-bold flex flex-col items-center space-y-1 transition-all"
-            >
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
-              <span>Mark Warning</span>
-              <span className="text-[9px] font-normal text-slate-400">Needs monitoring</span>
-            </button>
-
-            <button
-              onClick={() => updateWorkstationStatus(station.id, 'faulty')}
-              className="p-3.5 rounded-xl bg-maroon-950/60 border border-rose-500/50 hover:bg-maroon-900/60 text-rose-300 text-xs font-bold flex flex-col items-center space-y-1 transition-all shadow-glow-maroon"
-            >
-              <ShieldAlert className="w-5 h-5 text-rose-400" />
-              <span>Mark Maintenance</span>
-              <span className="text-[9px] font-normal text-slate-400">Take out of service</span>
-            </button>
           </div>
         </div>
       )}
     </Modal>
+  );
+}
+
+function Edit3(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
   );
 }

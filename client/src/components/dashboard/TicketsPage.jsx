@@ -26,7 +26,7 @@ export default function TicketsPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   // New ticket state
-  const [workstationId, setWorkstationId] = useState('PC-01');
+  const [workstationId, setWorkstationId] = useState(() => workstations[0]?.id || 'Lab201-PC-01');
   const [category, setCategory] = useState('Hardware');
   const [priority, setPriority] = useState('medium');
   const [title, setTitle] = useState('');
@@ -73,7 +73,7 @@ export default function TicketsPage() {
             PC & Hardware Maintenance Queue
           </h2>
           <p className="text-xs text-slate-400">
-            Real-time incident tracking across all 24 computing workstations
+            Real-time incident tracking across all {workstations.length} department workstations (Lab 201, 203, 302, EC Lab)
           </p>
         </div>
 
@@ -200,7 +200,9 @@ export default function TicketsPage() {
                 className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-400 cursor-pointer font-mono"
               >
                 {workstations.map((ws) => (
-                  <option key={ws.id} value={ws.id}>{ws.id} (Row {ws.row})</option>
+                  <option key={ws.id} value={ws.id}>
+                    {ws.labCode} • {ws.columnLabel} {ws.displayId}
+                  </option>
                 ))}
               </select>
             </div>
