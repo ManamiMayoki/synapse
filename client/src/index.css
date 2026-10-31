@@ -8,8 +8,14 @@
   color-scheme: dark;
 }
 
-body {
+html, body, #root {
+  height: 100%;
+  width: 100%;
   margin: 0;
+  padding: 0;
+}
+
+body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: #07070a;
   color: #f1f5f9;

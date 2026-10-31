@@ -20,16 +20,30 @@ export default function App() {
         <AuthProvider>
           <LabDataProvider>
             <BrowserRouter>
-              <div className="min-h-screen bg-zinc-975 text-slate-100 flex flex-col font-sans selection:bg-gold-500/30 selection:text-gold-200">
+              <div className="h-screen w-screen bg-zinc-975 text-slate-100 flex flex-col font-sans selection:bg-gold-500/30 selection:text-gold-200 overflow-hidden">
                 <Navbar />
 
-                <main className="flex-1 flex flex-col">
+                <main className="flex-1 w-full relative min-h-0 overflow-hidden">
                   <Routes>
                     {/* Public Auth Routes */}
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+                    <Route
+                      path="/login"
+                      element={
+                        <div className="w-full h-full overflow-y-auto">
+                          <Login />
+                        </div>
+                      }
+                    />
+                    <Route
+                      path="/register"
+                      element={
+                        <div className="w-full h-full overflow-y-auto">
+                          <Register />
+                        </div>
+                      }
+                    />
 
-                    {/* 3D Interactive Lab Twin */}
+                    {/* 3D Interactive Lab Twin - Full Page / Full Viewport */}
                     <Route
                       path="/lab3d"
                       element={
@@ -44,8 +58,10 @@ export default function App() {
                       path="/dashboard"
                       element={
                         <ProtectedRoute>
-                          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
-                            <DashboardRouter />
+                          <div className="w-full h-full overflow-y-auto">
+                            <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-8">
+                              <DashboardRouter />
+                            </div>
                           </div>
                         </ProtectedRoute>
                       }
@@ -56,8 +72,10 @@ export default function App() {
                       path="/inventory"
                       element={
                         <ProtectedRoute>
-                          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
-                            <InventoryPage />
+                          <div className="w-full h-full overflow-y-auto">
+                            <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-8">
+                              <InventoryPage />
+                            </div>
                           </div>
                         </ProtectedRoute>
                       }
@@ -68,8 +86,10 @@ export default function App() {
                       path="/tickets"
                       element={
                         <ProtectedRoute>
-                          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
-                            <TicketsPage />
+                          <div className="w-full h-full overflow-y-auto">
+                            <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-8">
+                              <TicketsPage />
+                            </div>
                           </div>
                         </ProtectedRoute>
                       }
