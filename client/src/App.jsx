@@ -48,7 +48,9 @@ export default function App() {
                       path="/lab3d"
                       element={
                         <ProtectedRoute>
-                          <LabCanvas />
+                          <ErrorBoundary>
+                            <LabCanvas />
+                          </ErrorBoundary>
                         </ProtectedRoute>
                       }
                     />

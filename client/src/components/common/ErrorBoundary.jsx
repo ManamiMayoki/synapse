@@ -4,7 +4,7 @@ import { AlertOctagon, RefreshCw, Home, ShieldAlert } from 'lucide-react';
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, showDetails: false };
+    this.state = { hasError: false, error: null, showDetails: true };
   }
 
   static getDerivedStateFromError(error) {

@@ -13,6 +13,8 @@ export default function EcBenchMesh({
 }) {
   const [hovered, setHovered] = useState(false);
 
+  if (!table) return null;
+
   // Position based on row (1..4) and col (1..2)
   const r = table.row || 1;
   const c = table.col || 1;

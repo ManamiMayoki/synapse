@@ -79,7 +79,7 @@ export default function RoomSelector({
   const ActiveIcon = getRoomIcon(activeRoomId);
 
   // Guarantee that all 4 department labs are always available in the switcher
-  const displayRooms = (rooms && rooms.length >= 4) ? rooms : DEPARTMENT_ROOMS;
+  const displayRooms = (Array.isArray(rooms) && rooms.length >= 4) ? rooms : DEPARTMENT_ROOMS;
 
   return (
     <div className="absolute top-3 left-4 right-4 z-40 pointer-events-none flex flex-col gap-2 select-none">
@@ -170,7 +170,7 @@ export default function RoomSelector({
             <div className="px-2.5 py-1.5 rounded-xl bg-zinc-900/90 border border-white/5 text-slate-300 flex items-center space-x-1.5 hidden md:flex">
               <span className="text-slate-400">Total:</span>
               <span className="font-bold text-white">
-                {activeRoom?.type === 'ec_lab' ? '8 Benches (2 PCs)' : `${workstations.length || 128} PCs`}
+                {activeRoom?.type === 'ec_lab' ? '8 Benches (2 PCs)' : `${(workstations || []).length || 128} PCs`}
               </span>
             </div>
 

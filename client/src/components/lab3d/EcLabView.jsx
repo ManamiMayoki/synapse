@@ -44,14 +44,16 @@ export default function EcLabView({ onSelectStation }) {
   const rows = [1, 2, 3, 4];
 
   const handleOpenEdit = (table) => {
+    if (!table) return;
     setEditTableModal(table);
-    setEditBreadboards(table.equipment.breadboards);
-    setEditResistorKits(table.equipment.resistorKits);
-    setEditVoltageMeters(table.equipment.voltageMeters);
-    setEditAmmeters(table.equipment.ammeters);
-    setEditMultimeters(table.equipment.multimeters);
-    setEditOscilloscopes(table.equipment.oscilloscopes);
-    setEditNotes(table.equipment.notes || '');
+    const eq = table.equipment || {};
+    setEditBreadboards(eq.breadboards ?? 4);
+    setEditResistorKits(eq.resistorKits ?? 3);
+    setEditVoltageMeters(eq.voltageMeters ?? 2);
+    setEditAmmeters(eq.ammeters ?? 2);
+    setEditMultimeters(eq.multimeters ?? 2);
+    setEditOscilloscopes(eq.oscilloscopes ?? 1);
+    setEditNotes(eq.notes || '');
   };
 
   const handleSaveEquipment = async (e) => {
@@ -73,7 +75,7 @@ export default function EcLabView({ onSelectStation }) {
 
   // Find workstation by pcId
   const getWorkstation = (pcId) => {
-    return workstations.find((w) => w.pcId === pcId) || null;
+    return (workstations || []).find((w) => w && w.pcId === pcId) || null;
   };
 
   return (
@@ -117,7 +119,7 @@ export default function EcLabView({ onSelectStation }) {
       {/* 4 Rows x 2 Columns Grid of Tables */}
       <div className="space-y-6">
         {rows.map((rowNum) => {
-          const rowTables = ecTables.filter((t) => t.row === rowNum).sort((a, b) => a.col - b.col);
+          const rowTables = (ecTables || []).filter((t) => t && t.row === rowNum).sort((a, b) => (a.col || 0) - (b.col || 0));
 
           return (
             <div key={rowNum} className="space-y-2">

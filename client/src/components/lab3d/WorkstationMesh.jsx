@@ -14,6 +14,8 @@ export default function WorkstationMesh({
   const screenRef = useRef();
   const [hovered, setHovered] = useState(false);
 
+  if (!station || !station.pcId) return null;
+
   // Status & allocation resolution
   const isNeedsRepair = station.status === 'Needs Repair' || station.status === 'faulty';
   const isFixed = station.status === 'Fixed';
@@ -206,7 +208,7 @@ export default function WorkstationMesh({
                   {station.status || 'Working'}
                 </span>
                 <span>•</span>
-                {isClaimed ? (
+                {isClaimed && station.allocatedTo?.tag ? (
                   <span className="text-gold-300 font-extrabold bg-gold-950/90 px-1.5 py-0.2 rounded border border-gold-500/40">
                     [{station.allocatedTo.tag}]
                   </span>
@@ -215,7 +217,7 @@ export default function WorkstationMesh({
                 )}
               </div>
 
-              {isClaimed && station.allocatedTo.studentName && (
+              {isClaimed && station.allocatedTo?.studentName && (
                 <p className="text-[9px] text-slate-300 truncate max-w-[130px] mt-0.5">
                   {station.allocatedTo.studentName}
                 </p>

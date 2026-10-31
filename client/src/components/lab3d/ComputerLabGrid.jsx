@@ -28,9 +28,9 @@ export default function ComputerLabGrid({ onSelectStation }) {
 
   // Helper to get 4 PCs in a specific slot (row, col)
   const getSlotPcs = (r, c) => {
-    return workstations
-      .filter((w) => w.slotRow === r && w.slotCol === c)
-      .sort((a, b) => a.pcIndex - b.pcIndex);
+    return (workstations || [])
+      .filter((w) => w && w.slotRow === r && w.slotCol === c)
+      .sort((a, b) => (a.pcIndex || 0) - (b.pcIndex || 0));
   };
 
   // Check if a PC satisfies active filters
@@ -52,7 +52,7 @@ export default function ComputerLabGrid({ onSelectStation }) {
     // Search query (matches PC ID, slot label, student tag)
     if (searchQuery) {
       const q = searchQuery.toLowerCase().trim();
-      const matchId = pc.pcId.toLowerCase().includes(q) || pc.displayId.toLowerCase().includes(q);
+      const matchId = (pc.pcId || '').toLowerCase().includes(q) || (pc.displayId || '').toLowerCase().includes(q);
       const matchTag = pc.allocatedTo?.tag?.toLowerCase().includes(q);
       const matchStudent = pc.allocatedTo?.studentName?.toLowerCase().includes(q);
       return matchId || matchTag || matchStudent;

@@ -24,10 +24,13 @@ function CameraController({ targetPosition, targetLookAt, controlsRef }) {
   const { camera } = useThree();
 
   useEffect(() => {
-    if (!targetPosition || !controlsRef.current) return;
+    if (!targetPosition || !controlsRef?.current) return;
+
+    const controls = controlsRef.current;
+    if (!controls?.target) return;
 
     gsap.killTweensOf(camera.position);
-    gsap.killTweensOf(controlsRef.current.target);
+    gsap.killTweensOf(controls.target);
 
     // Animate camera position smoothly
     gsap.to(camera.position, {
@@ -39,17 +42,39 @@ function CameraController({ targetPosition, targetLookAt, controlsRef }) {
     });
 
     // Animate orbit controls target
-    if (targetLookAt) {
-      gsap.to(controlsRef.current.target, {
+    if (targetLookAt && Array.isArray(targetLookAt)) {
+      gsap.to(controls.target, {
         x: targetLookAt[0],
         y: targetLookAt[1],
         z: targetLookAt[2],
         duration: 1.1,
         ease: 'power2.inOut',
-        onUpdate: () => controlsRef.current.update(),
+        onUpdate: () => {
+          try {
+            controlsRef.current?.update?.();
+          } catch {
+            // Ignore during unmount transitions
+          }
+        },
       });
     }
-  }, [targetPosition, targetLookAt, camera, controlsRef]);
+
+    return () => {
+      gsap.killTweensOf(camera.position);
+      if (controls?.target) {
+        gsap.killTweensOf(controls.target);
+      }
+    };
+  }, [
+    targetPosition?.[0],
+    targetPosition?.[1],
+    targetPosition?.[2],
+    targetLookAt?.[0],
+    targetLookAt?.[1],
+    targetLookAt?.[2],
+    camera,
+    controlsRef
+  ]);
 
   return null;
 }
@@ -73,14 +98,16 @@ function Scene({
 
   // Compute 3D positions for the 128 computer lab workstations (8 rows x 4 columns = 32 pods x 4 PCs)
   const positionedWorkstations = useMemo(() => {
+    const list = Array.isArray(workstations) ? workstations : [];
     if (isEcLab) {
-      return workstations;
+      return list;
     }
 
     const spacingX = 5.2;
     const spacingZ = 4.0;
 
-    return workstations.map((ws) => {
+    return list.map((ws) => {
+      if (!ws) return {};
       const r = ws.slotRow || 1;
       const c = ws.slotCol || 1;
       const p = ws.pcIndex || 1;
@@ -123,7 +150,9 @@ function Scene({
   // Filter stations based on status filter & search query
   const visibleWorkstations = useMemo(() => {
     const q = (searchQuery || '').trim().toLowerCase();
-    return positionedWorkstations.filter((ws) => {
+    const list = Array.isArray(positionedWorkstations) ? positionedWorkstations : [];
+    return list.filter((ws) => {
+      if (!ws || !ws.pcId) return false;
       if (statusFilter !== 'All') {
         if (statusFilter === 'Working') {
           if (ws.status !== 'Working' && ws.status !== 'Fixed') return false;
@@ -144,8 +173,11 @@ function Scene({
   // Map of PC stations for EC Lab Benches
   const ecPcMap = useMemo(() => {
     const map = {};
-    workstations.forEach((w) => {
-      map[w.pcId] = w;
+    const list = Array.isArray(workstations) ? workstations : [];
+    list.forEach((w) => {
+      if (w && w.pcId) {
+        map[w.pcId] = w;
+      }
     });
     return map;
   }, [workstations]);
