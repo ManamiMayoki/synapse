@@ -350,6 +350,7 @@ export default function LabCanvas() {
     setSelectedStationId,
     unallocatedOnly,
     statusFilter,
+    searchQuery,
     loading,
     updateTableEquipment,
   } = useLabData();
