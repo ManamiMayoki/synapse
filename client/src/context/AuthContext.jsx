@@ -39,13 +39,14 @@ export const AuthProvider = ({ children }) => {
       try {
         return JSON.parse(saved);
       } catch (e) {
-        return DEMO_ACCOUNTS.student;
+        localStorage.removeItem('synapse_user');
+        return null;
       }
     }
-    return DEMO_ACCOUNTS.student; // Default to student for initial experience
+    return null; // Visitors must sign in or register to access the lab console
   });
 
-  const [token, setToken] = useState(() => localStorage.getItem('synapse_token') || 'demo_jwt_token_academic_lab_01');
+  const [token, setToken] = useState(() => localStorage.getItem('synapse_token') || null);
 
   useEffect(() => {
     if (user) {

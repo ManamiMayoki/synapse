@@ -197,33 +197,33 @@ export default function WorkstationMesh({
       {(hovered || isSelected) && (
         <Html position={[0, 2.3, 0]} center zIndexRange={[100, 0]}>
           <div className="pointer-events-none select-none flex flex-col items-center animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-3 py-1.5 rounded-xl bg-zinc-950/98 border border-gold-500/60 shadow-2xl backdrop-blur-xl flex flex-col items-center min-w-[140px] text-center">
+            <div className="px-3.5 py-2 rounded-xl bg-white/95 border border-slate-200 shadow-xl backdrop-blur-md flex flex-col items-center min-w-[150px] text-center">
               <div className="flex items-center space-x-2">
-                <span className={`w-2 h-2 rounded-full ${isNeedsRepair ? 'bg-rose-500 animate-ping' : isClaimed ? 'bg-gold-400' : 'bg-emerald-400'}`} />
-                <span className="font-extrabold text-white text-xs font-mono">{displayLabel}</span>
+                <span className={`w-2 h-2 rounded-full ${isNeedsRepair ? 'bg-rose-500 animate-ping' : isClaimed ? 'bg-maroon-600' : 'bg-emerald-500'}`} />
+                <span className="font-bold text-slate-900 text-xs font-mono">{displayLabel}</span>
               </div>
 
-              <div className="mt-1 flex items-center space-x-1.5 text-[10px] font-mono">
-                <span className={`font-bold ${isNeedsRepair ? 'text-rose-400' : isFixed ? 'text-cyan-400' : 'text-emerald-400'}`}>
+              <div className="mt-1 flex items-center space-x-1.5 text-xs font-mono">
+                <span className={`font-semibold ${isNeedsRepair ? 'text-rose-600' : isFixed ? 'text-blue-600' : 'text-emerald-700'}`}>
                   {station.status || 'Working'}
                 </span>
-                <span>•</span>
+                <span className="text-slate-300">•</span>
                 {isClaimed && station.allocatedTo?.tag ? (
-                  <span className="text-gold-300 font-extrabold bg-gold-950/90 px-1.5 py-0.2 rounded border border-gold-500/40">
+                  <span className="text-maroon-800 font-bold bg-maroon-50 px-1.5 py-0.5 rounded border border-maroon-200">
                     [{station.allocatedTo.tag}]
                   </span>
                 ) : (
-                  <span className="text-emerald-300">Vacant</span>
+                  <span className="text-slate-500 font-medium">Vacant</span>
                 )}
               </div>
 
               {isClaimed && station.allocatedTo?.studentName && (
-                <p className="text-[9px] text-slate-300 truncate max-w-[130px] mt-0.5">
+                <p className="text-xs text-slate-600 truncate max-w-[140px] mt-0.5">
                   {station.allocatedTo.studentName}
                 </p>
               )}
 
-              <p className="text-[8px] text-gold-400/80 mt-1 uppercase tracking-wider font-semibold">
+              <p className="text-xs text-maroon-700 mt-1 uppercase tracking-wider font-semibold">
                 Click to inspect & ticket
               </p>
             </div>

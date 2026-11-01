@@ -10,7 +10,7 @@ import ServerRackMesh from './ServerRackMesh';
 import WorkstationModal from './WorkstationModal';
 import EcLabView from './EcLabView';
 import ComputerLabGrid from './ComputerLabGrid';
-import { ClaimSeatModal, TeacherExamModal } from './SeatingModals';
+import { TeacherExamModal } from './SeatingModals';
 import Modal from '../common/Modal';
 import { useLabData } from '../../context/LabDataContext';
 import { 
@@ -233,7 +233,7 @@ function Scene({
         penumbra={0.8}
       />
 
-      {/* Lab Room Floor: Dark Reflective Carbon Ceramic Tiles */}
+      {/* Lab Room Floor: Clean Light Architectural Ceramic Tiles */}
       <mesh
         position={[0, -0.01, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
@@ -242,27 +242,27 @@ function Scene({
       >
         <planeGeometry args={[isEcLab ? 30 : 34, isEcLab ? 36 : 44]} />
         <meshStandardMaterial
-          color="#060609"
-          metalness={0.85}
-          roughness={0.22}
+          color="#e2e8f0"
+          metalness={0.08}
+          roughness={0.4}
         />
       </mesh>
 
       {/* Floor Grid Lines */}
       <gridHelper
-        args={[isEcLab ? 30 : 34, isEcLab ? 30 : 34, '#a4773a', '#171722']}
+        args={[isEcLab ? 30 : 34, isEcLab ? 30 : 34, '#94a3b8', '#cbd5e1']}
         position={[0, 0.001, 0]}
       />
 
-      {/* Ceiling Neon Light Fixture Beams */}
+      {/* Ceiling Light Fixture Beams */}
       {[-14, -7, 0, 7, 14].map((z, idx) => (
         <group key={idx} position={[0, 6.2, z]}>
           <mesh>
             <boxGeometry args={[isEcLab ? 26 : 30, 0.08, 0.1]} />
             <meshStandardMaterial
               color="#ffffff"
-              emissive="#f1f5f9"
-              emissiveIntensity={2.0}
+              emissive="#ffffff"
+              emissiveIntensity={1.2}
             />
           </mesh>
         </group>
@@ -274,20 +274,18 @@ function Scene({
         <mesh receiveShadow>
           <boxGeometry args={[isEcLab ? 28 : 32, 5.6, 0.12]} />
           <meshStandardMaterial
-            color="#0b0b14"
-            transparent
-            opacity={0.7}
-            metalness={0.85}
-            roughness={0.2}
+            color="#f1f5f9"
+            metalness={0.08}
+            roughness={0.4}
           />
         </mesh>
         {/* 4K Smart Projection Screen */}
         <mesh position={[0, 0.5, 0.08]}>
           <planeGeometry args={[14, 3.8]} />
           <meshStandardMaterial
-            color="#000000"
-            emissive={activeRoom?.accentColor || '#d49b25'}
-            emissiveIntensity={0.5}
+            color="#1e293b"
+            emissive={activeRoom?.accentColor || '#800000'}
+            emissiveIntensity={0.25}
           />
         </mesh>
       </group>
@@ -359,8 +357,6 @@ export default function LabCanvas() {
   const [viewMode, setViewMode] = useState('3d');
 
   // Modals state
-  const [claimModalOpen, setClaimModalOpen] = useState(false);
-  const [claimDefaultPcId, setClaimDefaultPcId] = useState('');
   const [teacherExamModalOpen, setTeacherExamModalOpen] = useState(false);
 
   // EC Table gear edit modal
@@ -430,10 +426,6 @@ export default function LabCanvas() {
     });
   };
 
-  const handleOpenClaimModal = (pcId) => {
-    setClaimDefaultPcId(pcId || '');
-    setClaimModalOpen(true);
-  };
 
   const handleSelectStation = (station) => {
     if (!station) {
@@ -481,11 +473,10 @@ export default function LabCanvas() {
   };
 
   return (
-    <div className="relative w-full h-full bg-zinc-975 overflow-hidden select-none">
+    <div className="relative w-full h-full bg-slate-100 overflow-hidden select-none">
       
-      {/* 1. Floating Glass HUD Toolbar (Room Selector, View Mode Toggle, Seating Actions) */}
+      {/* 1. Floating Light HUD Toolbar (Room Selector, View Mode Toggle) */}
       <RoomSelector
-        onOpenClaimModal={() => handleOpenClaimModal('')}
         onOpenTeacherExamModal={() => setTeacherExamModalOpen(true)}
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -493,10 +484,10 @@ export default function LabCanvas() {
 
       {/* 2. Visual Workspace: 100% Full-Page 3D Digital Twin or 2D Tactical Plan */}
       {loading ? (
-        <div className="w-full h-full flex items-center justify-center text-center text-slate-400">
+        <div className="w-full h-full flex items-center justify-center text-center text-slate-500">
           <div className="flex flex-col items-center space-y-3">
-            <div className="w-10 h-10 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs font-mono">Loading {activeRoom?.roomCode} 3D digital twin...</p>
+            <div className="w-10 h-10 border-2 border-maroon-700 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-mono font-medium">Loading {activeRoom?.roomCode} 3D digital twin...</p>
           </div>
         </div>
       ) : viewMode === '3d' ? (
@@ -508,6 +499,7 @@ export default function LabCanvas() {
             camera={{ position: [0, 16, 22], fov: 44 }}
             gl={{ antialias: true, alpha: false }}
           >
+            <color attach="background" args={['#eef2f6']} />
             <Suspense fallback={null}>
               <Scene
                 activeRoomId={activeRoomId}
@@ -527,14 +519,14 @@ export default function LabCanvas() {
           </Canvas>
 
           {/* Interactive Zoom HUD & Camera Presets (Floating Bottom Right) */}
-          <div className="absolute bottom-5 right-5 z-30 flex flex-wrap items-center gap-2 bg-zinc-950/95 backdrop-blur-2xl p-2 rounded-2xl border border-gold-500/40 shadow-2xl">
+          <div className="absolute bottom-5 right-5 z-30 flex flex-wrap items-center gap-2 bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-slate-200 shadow-lg text-slate-800">
             
             {/* Quick Zoom In / Out Buttons (+ / -) */}
-            <div className="flex items-center space-x-1 border-r border-white/10 pr-2">
+            <div className="flex items-center space-x-1 border-r border-slate-200 pr-2">
               <button
                 type="button"
                 onClick={handleZoomIn}
-                className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-gold-500/25 text-gold-300 hover:text-white border border-white/10 flex items-center justify-center font-bold text-base transition-colors"
+                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 flex items-center justify-center font-bold text-base transition-colors"
                 title="Zoom In (+)"
               >
                 <Plus className="w-4 h-4" />
@@ -542,7 +534,7 @@ export default function LabCanvas() {
               <button
                 type="button"
                 onClick={handleZoomOut}
-                className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-gold-500/25 text-gold-300 hover:text-white border border-white/10 flex items-center justify-center font-bold text-base transition-colors"
+                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 flex items-center justify-center font-bold text-base transition-colors"
                 title="Zoom Out (-)"
               >
                 <Minus className="w-4 h-4" />
@@ -554,7 +546,7 @@ export default function LabCanvas() {
               <button
                 type="button"
                 onClick={() => setCameraTarget(presets.isometric)}
-                className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                className="px-3 py-1.5 text-xs font-bold rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
                 title="Full Overview Room Angle"
               >
                 Overview
@@ -562,7 +554,7 @@ export default function LabCanvas() {
               <button
                 type="button"
                 onClick={() => setCameraTarget(presets.front)}
-                className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                className="px-3 py-1.5 text-xs font-bold rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
                 title="Close-Up on Front Desk Rows"
               >
                 Front Rows
@@ -570,7 +562,7 @@ export default function LabCanvas() {
               <button
                 type="button"
                 onClick={() => setCameraTarget(presets.back)}
-                className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                className="px-3 py-1.5 text-xs font-bold rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
                 title="Close-Up on Back Desk Rows"
               >
                 Back Rows
@@ -578,7 +570,7 @@ export default function LabCanvas() {
               <button
                 type="button"
                 onClick={() => setCameraTarget(presets.topdown)}
-                className="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                className="px-3 py-1.5 text-xs font-bold rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
                 title="90° Top-Down Tactical View"
               >
                 Top-Down
@@ -588,10 +580,10 @@ export default function LabCanvas() {
 
           {/* Floating Instructions Pill (Bottom Left) */}
           <div className="absolute bottom-5 left-5 z-20 pointer-events-none hidden sm:block">
-            <div className="glass-panel px-4 py-2 rounded-xl text-[11px] text-slate-300 border-white/10 flex items-center space-x-2.5 shadow-xl">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="bg-white/95 px-4 py-2 rounded-xl text-xs text-slate-700 border border-slate-200 flex items-center space-x-2.5 shadow-md">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>
-                <strong>Interactive 3D Lab:</strong> Drag to rotate, scroll or use <strong className="text-gold-300 font-mono">+ / -</strong> to zoom, click any PC to inspect.
+                <strong>Interactive 3D Lab:</strong> Drag to rotate, scroll or use <strong className="text-maroon-700 font-mono">+ / -</strong> to zoom, click any workstation to inspect.
               </span>
             </div>
           </div>
@@ -613,18 +605,10 @@ export default function LabCanvas() {
         <WorkstationModal
           station={selectedStation}
           onClose={() => setSelectedStationId(null)}
-          onOpenClaimModal={(pcId) => handleOpenClaimModal(pcId)}
         />
       )}
 
-      {/* 4. Semester Day-One Seating Claim Modal ([Student ID] + [Batch]) */}
-      <ClaimSeatModal
-        isOpen={claimModalOpen}
-        onClose={() => setClaimModalOpen(false)}
-        defaultPcId={claimDefaultPcId}
-      />
-
-      {/* 5. Teacher Exam Seating Override Modal (Working PCs Only) */}
+      {/* 4. Teacher Exam Seating Override Modal (Working PCs Only) */}
       <TeacherExamModal
         isOpen={teacherExamModalOpen}
         onClose={() => setTeacherExamModalOpen(false)}

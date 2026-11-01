@@ -20,7 +20,7 @@ export default function App() {
         <AuthProvider>
           <LabDataProvider>
             <BrowserRouter>
-              <div className="h-screen w-screen bg-zinc-975 text-slate-100 flex flex-col font-sans selection:bg-gold-500/30 selection:text-gold-200 overflow-hidden">
+              <div className="h-screen w-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-maroon-100 selection:text-maroon-900 overflow-hidden">
                 <Navbar />
 
                 <main className="flex-1 w-full relative min-h-0 overflow-hidden">
@@ -98,7 +98,7 @@ export default function App() {
                     />
 
                     {/* Default Route */}
-                    <Route path="/" element={<Navigate to="/lab3d" replace />} />
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </main>

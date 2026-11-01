@@ -23,31 +23,31 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
       />
 
       {/* Modal Dialog Card */}
       <div
-        className={`relative w-full ${maxWidth} glass-panel rounded-2xl border border-gold-500/30 shadow-2xl z-10 overflow-hidden animate-in zoom-in-95 duration-200`}
+        className={`relative w-full ${maxWidth} bg-white rounded-2xl border border-slate-200 shadow-2xl z-10 overflow-hidden animate-in zoom-in-95 duration-200`}
       >
-        {/* Header glow strip */}
-        <div className="h-1 w-full bg-gradient-to-r from-maroon-600 via-gold-500 to-maroon-600"></div>
+        {/* Header accent strip */}
+        <div className="h-1 w-full bg-gradient-to-r from-maroon-700 via-gold-500 to-maroon-700"></div>
 
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white tracking-tight flex items-center space-x-2">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center space-x-2">
             <span>{title}</span>
           </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-6 max-h-[80vh] overflow-y-auto text-slate-700">
           {children}
         </div>
       </div>

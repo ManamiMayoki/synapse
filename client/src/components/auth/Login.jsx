@@ -3,20 +3,17 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { 
-  ShieldCheck, 
   Lock, 
   Mail, 
   Eye, 
   EyeOff, 
   ArrowRight, 
   Sparkles, 
-  UserCheck,
   Building2,
-  Box,
-  Cpu,
-  Layers,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  LogIn,
+  UserPlus
 } from 'lucide-react';
 
 export default function Login() {
@@ -37,13 +34,13 @@ export default function Login() {
   const detectedRole = React.useMemo(() => {
     const lower = email.toLowerCase().trim();
     if (lower.includes('admin') || lower === 'admin@synapse.edu') {
-      return { role: 'admin', label: 'Administrator', color: 'text-rose-300 border-rose-500/50 bg-maroon-950/60' };
+      return { role: 'admin', label: 'Administrator', color: 'text-rose-800 border-rose-200 bg-rose-50' };
     }
     if (lower.includes('staff') || lower.includes('assistant') || lower === 'staff@synapse.edu') {
-      return { role: 'staff', label: 'Lab Assistant (Staff)', color: 'text-amber-300 border-amber-500/50 bg-amber-950/60' };
+      return { role: 'staff', label: 'Lab Assistant (Staff)', color: 'text-amber-800 border-amber-200 bg-amber-50' };
     }
     if (lower.includes('student') || lower.includes('@') || lower === 'student@synapse.edu') {
-      return { role: 'student', label: 'Student Member', color: 'text-cyan-300 border-cyan-500/50 bg-cyan-950/60' };
+      return { role: 'student', label: 'Student Member', color: 'text-cyan-800 border-cyan-200 bg-cyan-50' };
     }
     return null;
   }, [email]);
@@ -85,147 +82,162 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 lg:p-8 bg-radial-vignette">
-      <div className="relative w-full max-w-5xl rounded-3xl glass-card border border-gold-500/30 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 lg:p-8 bg-slate-50">
+      <div className="relative w-full max-w-5xl rounded-3xl bg-white border border-slate-200 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
         
         {/* LEFT PANEL: Department Showcase & 3D Twin Highlights (5 cols) */}
-        <div className="lg:col-span-5 relative bg-gradient-to-br from-maroon-950 via-zinc-950 to-zinc-975 p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gold-500/20 overflow-hidden">
-          {/* Subtle background glow */}
-          <div className="absolute -top-16 -left-16 w-64 h-64 bg-maroon-700/25 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-16 -right-16 w-64 h-64 bg-gold-500/20 rounded-full blur-3xl pointer-events-none" />
-
+        <div className="lg:col-span-5 relative bg-gradient-to-br from-maroon-50 via-slate-50 to-white p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200">
+          
           {/* Top Brand Identity */}
           <div className="relative z-10 space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-maroon-700 to-gold-600 p-0.5 shadow-glow-maroon">
-                <div className="w-full h-full bg-zinc-950 rounded-[14px] flex items-center justify-center text-2xl font-black text-gold-300">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-maroon-700 to-maroon-800 p-0.5 shadow-sm">
+                <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-2xl font-black text-maroon-700">
                   ⚡
                 </div>
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-white tracking-wider flex items-center space-x-2">
-                  <span className="bg-gradient-to-r from-gold-300 via-amber-200 to-gold-400 bg-clip-text text-transparent">SYNAPSE</span>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase bg-maroon-700/40 text-gold-300 border border-gold-500/30 font-bold">CSE 3D</span>
+                <h1 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center space-x-2">
+                  <span>SYNAPSE</span>
+                  <span className="px-2 py-0.5 rounded text-xs font-mono uppercase bg-maroon-100 text-maroon-800 border border-maroon-200 font-bold">CSE 3D</span>
                 </h1>
-                <p className="text-[11px] text-slate-400">Department Lab & Asset Management</p>
+                <p className="text-xs text-slate-500 font-medium">Department Lab & Asset Management</p>
               </div>
             </div>
 
             <div className="pt-2">
-              <h2 className="text-xl font-bold text-white tracking-tight leading-snug">
-                University CSE Department Digital Twin & Infrastructure
+              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight leading-snug">
+                Department Digital Twin & Lab Infrastructure
               </h2>
-              <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Empowering real-time 3D lab monitoring, predictive hardware maintenance, and rapid asset checkouts for Computer Science students and faculty.
+              <p className="text-sm text-slate-600 mt-2 leading-relaxed">
+                Empowering real-time 3D lab monitoring, hardware maintenance ticketing, and rapid inventory checkouts for CSE students and faculty.
               </p>
             </div>
           </div>
 
           {/* Department Labs Feature List */}
           <div className="relative z-10 py-6 space-y-3">
-            <div className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 space-y-2 text-xs">
-              <div className="flex items-center space-x-2 text-gold-400 font-bold text-[11px] uppercase tracking-wider">
-                <Building2 className="w-3.5 h-3.5" />
-                <span>Departmental Labs (2 Columns × 4 PCs):</span>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2.5">
+              <div className="flex items-center space-x-2 text-maroon-800 font-bold text-xs uppercase tracking-wider">
+                <Building2 className="w-4 h-4 text-maroon-700" />
+                <span>Departmental Laboratories:</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300 font-medium">
-                <span className="flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+              <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
+                <span className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-cyan-500" />
                   <span>Lab 201 (CP Lab)</span>
                 </span>
-                <span className="flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                <span className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-purple-500" />
                   <span>Lab 203 (General CSE)</span>
                 </span>
-                <span className="flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                  <span>Lab 302 (HPC & Thesis)</span>
+                <span className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                  <span>Lab 302 (HPC Lab)</span>
                 </span>
-                <span className="flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
                   <span>EC Lab (1st Floor)</span>
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3 text-xs text-slate-400 pt-1">
-              <span className="flex items-center space-x-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="flex items-center space-x-4 text-xs text-slate-600 font-medium pt-1">
+              <span className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 <span>Live 3D Twin</span>
               </span>
               <span>•</span>
-              <span className="flex items-center space-x-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Zero-Downtime Triage</span>
+              <span className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Incident Triage</span>
               </span>
               <span>•</span>
-              <span className="flex items-center space-x-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 <span>QR Checkouts</span>
               </span>
             </div>
           </div>
 
           {/* Bottom Security Note */}
-          <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-            <span>SECURE JWT AUTH</span>
-            <span>PORTAL v2.4</span>
+          <div className="relative z-10 pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 font-mono">
+            <span>SECURE ACADEMIC PORTAL</span>
+            <span>v2.4.0</span>
           </div>
         </div>
 
         {/* RIGHT PANEL: Sign-In Form (7 cols) */}
-        <div className="lg:col-span-7 p-8 sm:p-10 flex flex-col justify-center space-y-6 bg-zinc-950/80">
+        <div className="lg:col-span-7 p-8 sm:p-10 flex flex-col justify-center space-y-6 bg-white">
           
+          {/* Sign In / Register Segmented Tab Switcher */}
+          <div className="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200">
+            <Link
+              to="/login"
+              className="flex-1 py-2.5 rounded-xl font-bold text-sm text-center bg-white text-maroon-800 shadow-sm border border-slate-200/80 flex items-center justify-center space-x-2"
+            >
+              <LogIn className="w-4 h-4 text-maroon-700" />
+              <span>Sign In</span>
+            </Link>
+            <Link
+              to="/register"
+              className="flex-1 py-2.5 rounded-xl font-semibold text-sm text-center text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-center space-x-2"
+            >
+              <UserPlus className="w-4 h-4 text-slate-500" />
+              <span>Register</span>
+            </Link>
+          </div>
+
           <div className="space-y-1">
-            <h3 className="text-2xl font-extrabold text-white tracking-tight">
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
               Sign In to Your Account
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-sm text-slate-600">
               Access your department role console and 3D lab digital twin.
             </p>
           </div>
 
           {/* 1-Click Evaluator Sign-In Bar */}
-          <div className="p-3.5 rounded-2xl bg-zinc-900/90 border border-gold-500/30 space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-gold-400">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-700">
               <span className="flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>1-Click Evaluator Sign-In:</span>
               </span>
-              <span className="text-[10px] text-slate-400 lowercase">instant role switch</span>
+              <span className="text-xs text-slate-500 font-normal lowercase">instant role switch</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               <button
                 type="button"
                 onClick={() => handleQuickDemo('student')}
-                className="py-2 px-2.5 rounded-xl bg-zinc-950 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-950/60 text-xs font-bold transition-all text-center flex flex-col items-center space-y-0.5"
+                className="py-2.5 px-3 rounded-xl bg-white border border-cyan-200 text-cyan-900 hover:bg-cyan-50 text-xs font-bold transition-all text-center flex flex-col items-center space-y-0.5 shadow-xs"
               >
                 <span>Student</span>
-                <span className="text-[9px] font-normal text-slate-400">Alex Vance</span>
+                <span className="text-xs font-medium text-slate-500">Alex Vance</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemo('staff')}
-                className="py-2 px-2.5 rounded-xl bg-zinc-950 border border-amber-500/40 text-amber-300 hover:bg-amber-950/60 text-xs font-bold transition-all text-center flex flex-col items-center space-y-0.5"
+                className="py-2.5 px-3 rounded-xl bg-white border border-amber-200 text-amber-900 hover:bg-amber-50 text-xs font-bold transition-all text-center flex flex-col items-center space-y-0.5 shadow-xs"
               >
                 <span>Lab Assistant</span>
-                <span className="text-[9px] font-normal text-slate-400">Marcus H.</span>
+                <span className="text-xs font-medium text-slate-500">Marcus H.</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemo('admin')}
-                className="py-2 px-2.5 rounded-xl bg-zinc-950 border border-maroon-600/50 text-rose-300 hover:bg-maroon-950/60 text-xs font-bold transition-all text-center shadow-glow-maroon flex flex-col items-center space-y-0.5"
+                className="py-2.5 px-3 rounded-xl bg-white border border-maroon-200 text-maroon-900 hover:bg-maroon-50 text-xs font-bold transition-all text-center flex flex-col items-center space-y-0.5 shadow-xs"
               >
                 <span>Administrator</span>
-                <span className="text-[9px] font-normal text-slate-400">Dr. E. Reed</span>
+                <span className="text-xs font-medium text-slate-500">Dr. E. Reed</span>
               </button>
             </div>
           </div>
 
           {/* Validation Error Feedback */}
           {validationError && (
-            <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-500/50 text-rose-300 text-xs flex items-center space-x-2 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center space-x-2 animate-in fade-in">
+              <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
               <span>{validationError}</span>
             </div>
           )}
@@ -234,19 +246,19 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                <label className="block text-sm font-semibold text-slate-700">
                   University Email
                 </label>
                 {/* Dynamic Role Detection Hint */}
                 {detectedRole && (
-                  <span className={`px-2 py-0.5 rounded-md border text-[10px] font-mono font-semibold flex items-center space-x-1 ${detectedRole.color}`}>
-                    <Sparkles className="w-3 h-3" />
-                    <span>Detected: {detectedRole.label}</span>
+                  <span className={`px-2 py-0.5 rounded-md border text-xs font-mono font-semibold flex items-center space-x-1 ${detectedRole.color}`}>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Role: {detectedRole.label}</span>
                   </span>
                 )}
               </div>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-3" />
                 <input
                   type="email"
                   required
@@ -256,20 +268,20 @@ export default function Login() {
                     setEmail(e.target.value);
                     if (validationError) setValidationError('');
                   }}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-900/90 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-gold-400 transition-colors font-medium"
+                  className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100 transition-colors font-medium"
                 />
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                <label className="block text-sm font-semibold text-slate-700">
                   Password
                 </label>
-                <span className="text-[11px] text-slate-400 font-mono">Demo: synapse2026</span>
+                <span className="text-xs text-slate-500 font-mono">Demo: synapse2026</span>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-3" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
@@ -279,12 +291,12 @@ export default function Login() {
                     setPassword(e.target.value);
                     if (validationError) setValidationError('');
                   }}
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-zinc-900/90 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-gold-400 transition-colors"
+                  className="w-full pl-11 pr-11 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100 transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="p-1 text-slate-500 hover:text-white absolute right-3 top-2.5 transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 absolute right-3 top-2.5 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -294,7 +306,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-maroon-700 via-maroon-800 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-glow-maroon flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white font-bold text-sm tracking-wide transition-all shadow-sm flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               <span>{loading ? 'Authenticating Credentials...' : 'Sign In to Lab Console'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -302,9 +314,9 @@ export default function Login() {
           </form>
 
           {/* Registration link */}
-          <div className="pt-2 text-center text-xs text-slate-400 border-t border-white/10">
+          <div className="pt-2 text-center text-sm text-slate-600 border-t border-slate-200">
             <span>Need departmental credentials? </span>
-            <Link to="/register" className="text-gold-400 hover:text-gold-300 font-semibold underline underline-offset-4">
+            <Link to="/register" className="text-maroon-700 hover:text-maroon-800 font-bold underline underline-offset-4">
               Register Student / Staff Account
             </Link>
           </div>

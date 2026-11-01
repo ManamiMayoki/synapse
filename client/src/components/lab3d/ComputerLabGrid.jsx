@@ -62,30 +62,30 @@ export default function ComputerLabGrid({ onSelectStation }) {
   };
 
   return (
-    <div className="w-full p-4 sm:p-8 bg-zinc-975 bg-cyber-grid min-h-[800px] space-y-8 select-none">
+    <div className="w-full p-4 sm:p-8 bg-slate-50 min-h-[800px] space-y-8 select-none">
       
       {/* North Wall: Smart 4K Projection Matrix & Instructor Podium */}
-      <div className="max-w-7xl mx-auto rounded-3xl glass-card p-4 sm:p-5 border-gold-500/25 bg-zinc-950/80 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto rounded-2xl bg-white p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
           <div>
-            <span className="font-mono text-xs font-extrabold uppercase tracking-widest text-slate-200">
+            <span className="font-mono text-sm font-bold uppercase tracking-wider text-slate-800">
               NORTH WALL • 4K SMART PROJECTION MATRIX & INSTRUCTOR PODIUM
             </span>
-            <p className="text-[11px] text-slate-400 mt-0.5">
+            <p className="text-sm text-slate-500 mt-0.5">
               {activeRoom?.name} • 10 GbE Core Backbone • Verified Working PC Cluster
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 text-xs font-mono">
-          <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/5 text-gold-300">
+        <div className="flex items-center space-x-2 text-xs font-mono">
+          <span className="px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-semibold">
             Layout: 8 Rows × 4 Columns
           </span>
-          <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/5 text-cyan-300">
-            4 PCs Per Slot Grid
+          <span className="px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 font-semibold">
+            4 PCs Per Slot
           </span>
-          <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/5 text-white font-bold">
+          <span className="px-3 py-1.5 rounded-lg bg-maroon-50 border border-maroon-200 text-maroon-800 font-bold">
             128 PCs Total
           </span>
         </div>
@@ -94,15 +94,15 @@ export default function ComputerLabGrid({ onSelectStation }) {
       {/* 8 Rows x 4 Columns Grid Architecture */}
       <div className="max-w-7xl mx-auto space-y-6">
         {rows.map((rowNum) => (
-          <div key={rowNum} className="space-y-2">
+          <div key={rowNum} className="space-y-3">
             
             {/* Row Number Marker */}
-            <div className="flex items-center justify-between px-2 text-xs font-mono">
-              <span className="font-extrabold text-gold-400/90 tracking-widest uppercase flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-gold-400" />
+            <div className="flex items-center justify-between px-2 text-sm font-mono">
+              <span className="font-bold text-slate-700 tracking-wider uppercase flex items-center space-x-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-maroon-600" />
                 <span>Row {rowNum} (Slots {rowNum}-1 to {rowNum}-4)</span>
               </span>
-              <span className="text-[10px] text-slate-500">16 PCs in Row {rowNum}</span>
+              <span className="text-xs text-slate-500">16 PCs in Row {rowNum}</span>
             </div>
 
             {/* 4 Table Columns in this Row */}
@@ -114,24 +114,24 @@ export default function ComputerLabGrid({ onSelectStation }) {
                 return (
                   <div
                     key={`${rowNum}-${colNum}`}
-                    className={`rounded-2xl glass-card p-3.5 border transition-all duration-200 ${
+                    className={`rounded-2xl p-4 border transition-all duration-200 ${
                       hasMatchingPc
-                        ? 'border-white/10 bg-zinc-950/80 hover:border-gold-500/40'
-                        : 'border-white/5 bg-zinc-950/40 opacity-40'
+                        ? 'border-slate-200 bg-white shadow-sm hover:border-slate-300 hover:shadow'
+                        : 'border-slate-100 bg-slate-50 opacity-40'
                     }`}
                   >
-                    {/* Slot Header: e.g. Slot R1-C1 */}
-                    <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-white/5 text-xs font-mono">
-                      <span className="font-bold text-slate-200">
+                    {/* Slot Header */}
+                    <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-100 text-xs font-mono">
+                      <span className="font-bold text-slate-800">
                         Slot R{rowNum}-C{colNum}
                       </span>
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-slate-500 font-medium">
                         Table {colNum}
                       </span>
                     </div>
 
-                    {/* 4 PCs inside this Slot (2x2 mini grid or vertical stack) */}
-                    <div className="grid grid-cols-2 gap-2">
+                    {/* 4 PCs inside this Slot */}
+                    <div className="grid grid-cols-2 gap-2.5">
                       {slotPcs.map((pc) => {
                         const isVisible = pcMatchesFilter(pc);
                         const isAllocated = !!pc.allocatedTo?.tag;
@@ -140,44 +140,44 @@ export default function ComputerLabGrid({ onSelectStation }) {
                           <div
                             key={pc.pcId}
                             onClick={() => onSelectStation(pc)}
-                            className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all duration-200 relative group ${
+                            className={`p-3 rounded-xl border text-left cursor-pointer transition-all duration-200 relative group ${
                               !isVisible
                                 ? 'opacity-25 pointer-events-none'
                                 : pc.status === 'Needs Repair'
-                                ? 'bg-maroon-950/80 border-rose-500/60 shadow-glow-maroon hover:border-rose-400'
+                                ? 'bg-rose-50 border-rose-300 hover:border-rose-400'
                                 : unallocatedOnly && !isAllocated
-                                ? 'bg-emerald-950/50 border-emerald-400/80 shadow-[0_0_12px_rgba(16,185,129,0.3)] hover:border-emerald-300'
+                                ? 'bg-emerald-50 border-emerald-300 hover:border-emerald-400'
                                 : pc.status === 'Fixed'
-                                ? 'bg-zinc-900/90 border-cyan-500/40 hover:border-cyan-300'
-                                : 'bg-zinc-900/80 border-white/10 hover:border-gold-500/60 hover:bg-zinc-850'
+                                ? 'bg-blue-50 border-blue-200 hover:border-blue-300'
+                                : 'bg-slate-50 border-slate-200 hover:border-maroon-300 hover:bg-white'
                             }`}
                           >
-                            {/* Top Line: PC index (P1..P4) & Status Dot */}
+                            {/* Top Line: PC index & Status Dot */}
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="font-mono text-xs font-extrabold text-white group-hover:text-gold-300 transition-colors">
+                              <span className="font-mono text-sm font-bold text-slate-800 group-hover:text-maroon-700 transition-colors">
                                 PC-{pc.pcIndex}
                               </span>
                               <span
-                                className={`w-2 h-2 rounded-full ${
+                                className={`w-2.5 h-2.5 rounded-full ${
                                   pc.status === 'Needs Repair'
                                     ? 'bg-rose-500 animate-ping'
                                     : pc.status === 'Fixed'
-                                    ? 'bg-cyan-400'
-                                    : 'bg-emerald-400'
+                                    ? 'bg-blue-500'
+                                    : 'bg-emerald-500'
                                 }`}
                                 title={`Status: ${pc.status}`}
                               />
                             </div>
 
-                            {/* Seating Allocation Tag: [Student ID] + [Batch] (e.g. 364-32) */}
-                            <div className="min-h-[22px] flex items-center mb-1">
+                            {/* Seating Allocation Tag */}
+                            <div className="min-h-[24px] flex items-center mb-1.5">
                               {isAllocated ? (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-maroon-700/40 text-gold-300 border border-gold-500/30 truncate max-w-full">
+                                <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-maroon-50 text-maroon-800 border border-maroon-200 truncate max-w-full">
                                   🪑 {pc.allocatedTo.tag}
                                 </span>
                               ) : (
-                                <span className={`text-[10px] font-mono font-semibold ${
-                                  unallocatedOnly ? 'text-emerald-300 font-bold animate-pulse' : 'text-slate-500'
+                                <span className={`text-xs font-mono font-semibold ${
+                                  unallocatedOnly ? 'text-emerald-700 font-bold' : 'text-slate-400'
                                 }`}>
                                   Vacant
                                 </span>
@@ -185,12 +185,12 @@ export default function ComputerLabGrid({ onSelectStation }) {
                             </div>
 
                             {/* PC Status Badge Label */}
-                            <div className="flex items-center justify-between text-[9px] font-mono text-slate-400 border-t border-white/5 pt-1">
-                              <span className={pc.status === 'Needs Repair' ? 'text-rose-400 font-bold' : pc.status === 'Fixed' ? 'text-cyan-400' : 'text-slate-400'}>
+                            <div className="flex items-center justify-between text-xs font-mono text-slate-500 border-t border-slate-200/60 pt-1.5">
+                              <span className={pc.status === 'Needs Repair' ? 'text-rose-600 font-bold' : pc.status === 'Fixed' ? 'text-blue-600' : 'text-slate-600'}>
                                 {pc.status}
                               </span>
                               {pc.notes?.length > 0 && (
-                                <span className="text-gold-400 font-semibold" title={`${pc.notes.length} custom notes logged`}>
+                                <span className="text-amber-700 font-semibold" title={`${pc.notes.length} custom notes logged`}>
                                   📝 {pc.notes.length}
                                 </span>
                               )}
@@ -210,11 +210,11 @@ export default function ComputerLabGrid({ onSelectStation }) {
       </div>
 
       {/* South Wall & Aisle Entryway */}
-      <div className="max-w-7xl mx-auto p-4 rounded-3xl border border-dashed border-gold-500/30 bg-gold-950/10 flex items-center justify-between text-xs text-slate-400 font-mono">
+      <div className="max-w-7xl mx-auto p-4 rounded-2xl border border-dashed border-slate-300 bg-white flex items-center justify-between text-xs text-slate-600 font-mono">
         <span>SOUTH ENTRANCE & WALKWAY AISLE • ALL WORKSTATIONS NETWORK TERMINATED</span>
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-slate-300">CAMPUS CORRIDOR EXIT</span>
-          <span className="w-2.5 h-2.5 rounded-full bg-gold-400" />
+          <span className="font-bold text-slate-700">CAMPUS CORRIDOR EXIT</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-maroon-600" />
         </div>
       </div>
 

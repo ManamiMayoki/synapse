@@ -4,10 +4,10 @@ import { useLabData } from '../../context/LabDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../common/Modal';
-import { Search, Filter, QrCode, Plus, Layers, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Search, QrCode, Plus } from 'lucide-react';
 
 export default function InventoryPage() {
-  const { inventory, checkouts, checkoutItem, addInventoryItem } = useLabData();
+  const { inventory, checkoutItem, addInventoryItem } = useLabData();
   const { user, role } = useAuth();
   const { addToast } = useToast();
 
@@ -29,9 +29,9 @@ export default function InventoryPage() {
 
   const filteredItems = inventory.filter((item) => {
     const matchesSearch =
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.sku.toLowerCase().includes(search.toLowerCase()) ||
-      item.location.toLowerCase().includes(search.toLowerCase());
+      (item.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (item.sku || '').toLowerCase().includes(search.toLowerCase()) ||
+      (item.location || '').toLowerCase().includes(search.toLowerCase());
     const matchesCat = selectedCategory === 'All' || item.category === selectedCategory;
     return matchesSearch && matchesCat;
   });
@@ -73,10 +73,10 @@ export default function InventoryPage() {
       {/* Page Title & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Hardware Inventory & QR Checkout
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-sm text-slate-500">
             Browse laboratory dev kits, microcontrollers, test equipment, and tools
           </p>
         </div>
@@ -84,7 +84,7 @@ export default function InventoryPage() {
         {(role === 'staff' || role === 'admin') && (
           <button
             onClick={() => setAddModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow-md self-start sm:self-auto"
+            className="px-4 py-2.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white font-bold text-sm flex items-center space-x-1.5 transition-all shadow-sm self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Add Asset</span>
@@ -95,13 +95,13 @@ export default function InventoryPage() {
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row items-center gap-3">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           <input
             type="text"
             placeholder="Search by item name, SKU, or storage bin location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-900/90 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-gold-400"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100"
           />
         </div>
 
@@ -111,10 +111,10 @@ export default function InventoryPage() {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 selectedCategory === cat
-                  ? 'bg-gradient-to-r from-maroon-800 to-gold-800 text-white border border-gold-400/40 shadow-sm'
-                  : 'bg-zinc-900 text-slate-400 hover:text-white border border-white/5'
+                  ? 'bg-maroon-700 text-white shadow-sm'
+                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
               }`}
             >
               {cat}
@@ -128,42 +128,42 @@ export default function InventoryPage() {
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className="rounded-2xl glass-card p-5 flex flex-col justify-between group hover:border-gold-500/40 transition-all duration-300"
+            className="rounded-2xl bg-white border border-slate-200 shadow-sm p-5 flex flex-col justify-between group hover:border-slate-300 hover:shadow-md transition-all duration-300"
           >
             <div>
               <div className="flex items-start justify-between mb-3">
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-800/80 border border-slate-700 text-[10px] font-semibold text-slate-300">
+                <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold">
                   {item.category}
                 </span>
                 <button
                   onClick={() => setQrModalItem(item)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-gold-300 hover:bg-gold-500/10 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                   title="View QR Barcode"
                 >
-                  <QrCode className="w-4 h-4" />
+                  <QrCode className="w-4 h-4 text-maroon-700" />
                 </button>
               </div>
 
-              <h3 className="text-sm font-bold text-white group-hover:text-gold-200 transition-colors">
+              <h3 className="text-base font-bold text-slate-900">
                 {item.name}
               </h3>
-              <p className="font-mono text-[10px] text-gold-400/90 mt-0.5">{item.sku}</p>
+              <p className="font-mono text-xs text-maroon-700 font-semibold mt-0.5">{item.sku}</p>
 
-              <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+              <p className="text-sm text-slate-600 mt-2 line-clamp-2 leading-relaxed">
                 {item.specs}
               </p>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-white/5 space-y-3">
+            <div className="mt-4 pt-3 border-t border-slate-100 space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Stock:</span>
+                <span className="text-slate-500 font-medium">Stock Status:</span>
                 <span
                   className={`font-mono font-bold ${
                     item.availableQty > 5
-                      ? 'text-emerald-400'
+                      ? 'text-emerald-700'
                       : item.availableQty > 0
-                      ? 'text-amber-400'
-                      : 'text-rose-400'
+                      ? 'text-amber-700'
+                      : 'text-rose-700'
                   }`}
                 >
                   {item.availableQty} / {item.totalQty} available
@@ -171,14 +171,14 @@ export default function InventoryPage() {
               </div>
 
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] text-slate-500 font-mono truncate">
+                <span className="text-xs text-slate-500 font-mono truncate">
                   {item.location}
                 </span>
 
                 <button
                   onClick={() => setCheckoutModalItem(item)}
                   disabled={item.availableQty <= 0}
-                  className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-maroon-700 to-gold-600 hover:from-maroon-600 hover:to-gold-500 text-white text-xs font-bold transition-all shadow-sm disabled:opacity-40 disabled:pointer-events-none"
+                  className="px-3.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-40 disabled:pointer-events-none"
                 >
                   Borrow
                 </button>
@@ -197,29 +197,29 @@ export default function InventoryPage() {
       >
         {checkoutModalItem && (
           <form onSubmit={handleCheckoutSubmit} className="space-y-4">
-            <div className="p-4 rounded-xl bg-zinc-900 border border-white/10 space-y-1">
-              <p className="font-mono text-xs text-gold-400">{checkoutModalItem.sku}</p>
-              <h4 className="text-sm font-bold text-white">{checkoutModalItem.name}</h4>
-              <p className="text-xs text-slate-400">{checkoutModalItem.specs}</p>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+              <p className="font-mono text-xs font-bold text-maroon-700">{checkoutModalItem.sku}</p>
+              <h4 className="text-base font-bold text-slate-900">{checkoutModalItem.name}</h4>
+              <p className="text-xs text-slate-600">{checkoutModalItem.specs}</p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Borrower Student
               </label>
-              <div className="px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/5 text-xs text-white">
+              <div className="px-3.5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-sm text-slate-800 font-medium">
                 {user?.name} ({user?.studentId || 'CSE-2022-042'})
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Loan Period
               </label>
               <select
                 value={borrowDays}
                 onChange={(e) => setBorrowDays(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-400 cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100 cursor-pointer"
               >
                 <option value={3}>3 Days (Class Experiment)</option>
                 <option value={7}>7 Days (1 Week)</option>
@@ -230,7 +230,7 @@ export default function InventoryPage() {
             <div className="pt-2 flex justify-end">
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 text-white text-xs font-bold shadow-glow-maroon"
+                className="px-5 py-2.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-bold shadow-sm"
               >
                 Confirm & Issue Gear
               </button>
@@ -248,7 +248,7 @@ export default function InventoryPage() {
       >
         {qrModalItem && (
           <div className="flex flex-col items-center justify-center p-4 text-center space-y-4">
-            <div className="p-4 bg-white rounded-2xl shadow-2xl border-4 border-gold-500/40">
+            <div className="p-4 bg-white rounded-2xl shadow-md border-2 border-slate-200">
               <QRCodeSVG
                 value={`SYNAPSE-ASSET:${qrModalItem.sku}:${qrModalItem.id}`}
                 size={180}
@@ -257,9 +257,9 @@ export default function InventoryPage() {
               />
             </div>
             <div>
-              <p className="font-mono text-xs font-bold text-gold-400">{qrModalItem.sku}</p>
-              <p className="text-sm font-extrabold text-white">{qrModalItem.name}</p>
-              <p className="text-xs text-slate-400 mt-1">Location: {qrModalItem.location}</p>
+              <p className="font-mono text-xs font-bold text-maroon-700">{qrModalItem.sku}</p>
+              <p className="text-base font-extrabold text-slate-900">{qrModalItem.name}</p>
+              <p className="text-xs text-slate-500 mt-1 font-medium">Location: {qrModalItem.location}</p>
             </div>
           </div>
         )}
@@ -274,7 +274,7 @@ export default function InventoryPage() {
       >
         <form onSubmit={handleAddSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
               Equipment Name
             </label>
             <input
@@ -283,19 +283,19 @@ export default function InventoryPage() {
               placeholder="e.g. Raspberry Pi Zero 2 W"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-400"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-400 cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100 cursor-pointer"
               >
                 {categories.filter((c) => c !== 'All').map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -304,7 +304,7 @@ export default function InventoryPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Quantity
               </label>
               <input
@@ -312,13 +312,13 @@ export default function InventoryPage() {
                 min="1"
                 value={totalQty}
                 onChange={(e) => setTotalQty(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
               Storage Bin / Cabinet Location
             </label>
             <input
@@ -326,12 +326,12 @@ export default function InventoryPage() {
               placeholder="e.g. Cabinet B - Shelf 1"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-400"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
               Technical Specifications
             </label>
             <input
@@ -339,14 +339,14 @@ export default function InventoryPage() {
               placeholder="e.g. 1GHz Quad-Core, 512MB RAM, Wireless LAN"
               value={specs}
               onChange={(e) => setSpecs(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-gold-400"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm text-slate-900 focus:outline-none focus:border-maroon-600 focus:ring-2 focus:ring-maroon-100"
             />
           </div>
 
           <div className="pt-2 flex justify-end">
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-maroon-700 to-gold-600 text-white text-xs font-bold shadow-md"
+              className="px-5 py-2.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-bold shadow-sm"
             >
               Add to Catalog
             </button>
