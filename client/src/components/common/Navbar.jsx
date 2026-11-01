@@ -43,28 +43,11 @@ export default function Navbar() {
         {/* Brand Logo & Name */}
         <div 
           onClick={() => navigate(isAuthenticated ? '/dashboard' : '/login')}
-          className="flex items-center space-x-3 cursor-pointer group"
+          className="flex items-center cursor-pointer group"
         >
-          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-maroon-700 via-maroon-800 to-gold-600 p-0.5 shadow-sm transition-transform duration-300 group-hover:scale-105">
-            <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-              <span className="text-xl font-black text-maroon-700">
-                ⚡
-              </span>
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-lg tracking-tight text-slate-900">
-                SYNAPSE
-              </span>
-              <span className="hidden sm:inline-block px-2 py-0.5 text-xs font-mono uppercase tracking-wider font-bold bg-maroon-50 text-maroon-800 border border-maroon-200 rounded-md">
-                CSE 3D
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 hidden sm:block font-medium">
-              Lab & Asset Management System
-            </p>
-          </div>
+          <span className="font-extrabold text-xl tracking-tight text-slate-900 group-hover:text-maroon-700 transition-colors">
+            SYNAPSE
+          </span>
         </div>
 
         {/* Central Navigation Pills (Only when authenticated) */}
