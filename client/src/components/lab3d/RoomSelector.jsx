@@ -260,10 +260,10 @@ export default function RoomSelector({
 
       {/* Floating Filter Drawer (Expands below top HUD when toggled) */}
       {filterDrawerOpen && (
-        <div className="w-full bg-white/95 backdrop-blur-md border border-slate-200 p-2.5 sm:px-4 rounded-2xl shadow-md flex flex-wrap items-center justify-between gap-3 pointer-events-auto animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="w-full bg-white/95 backdrop-blur-md border border-slate-200 p-2.5 sm:px-4 rounded-2xl shadow-md flex flex-wrap items-center justify-center gap-3 pointer-events-auto animate-in fade-in slide-in-from-top-1 duration-150">
           
-          {/* Left: Vacant Seat Tracker & Status Filters */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Centered: Vacant Seat Tracker & Status Filters */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
             
             {/* Vacant Seat Tracker Toggle Button */}
             <button
