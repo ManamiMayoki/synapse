@@ -83,7 +83,7 @@ export default function RoomSelector({
     <div className="absolute top-3 left-4 right-4 z-40 pointer-events-none flex flex-col gap-2 select-none">
       
       {/* Top Floating Light HUD Bar */}
-      <div className="w-full bg-white/95 backdrop-blur-md border border-slate-200 p-2.5 sm:px-4 rounded-2xl shadow-md flex flex-wrap items-center justify-between gap-3 pointer-events-auto">
+      <div className="relative z-20 w-full bg-white/95 backdrop-blur-md border border-slate-200 p-2.5 sm:px-4 rounded-2xl shadow-md flex flex-wrap items-center justify-between gap-3 pointer-events-auto">
         
         {/* Left: Dropdown Room Switcher + Stats Badge */}
         <div className="flex flex-wrap items-center gap-2.5">
@@ -260,7 +260,7 @@ export default function RoomSelector({
 
       {/* Floating Filter Drawer (Expands below top HUD when toggled) */}
       {filterDrawerOpen && (
-        <div className="w-full bg-white/95 backdrop-blur-md border border-slate-200 p-2.5 sm:px-4 rounded-2xl shadow-md flex flex-wrap items-center justify-center gap-3 pointer-events-auto animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="relative z-10 w-full bg-white/95 backdrop-blur-md border border-slate-200 p-2.5 sm:px-4 rounded-2xl shadow-md flex flex-wrap items-center justify-center gap-3 pointer-events-auto animate-in fade-in slide-in-from-top-1 duration-150">
           
           {/* Centered: Vacant Seat Tracker & Status Filters */}
           <div className="flex flex-wrap items-center justify-center gap-2">
